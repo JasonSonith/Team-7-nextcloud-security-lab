@@ -150,12 +150,6 @@ Fix: config or code guidance
 
 ---
 
-## Project hygiene
-
-* Branches: `feat/*` for work, PRs into `main`.
-* Protect `main`: PR + 1 approval.
-* Issues: one per task/finding. Link PRs with `Fixes #N`.
-* CI: Semgrep + Trivy on push/PR.
 
 ## Safety and ethics
 
