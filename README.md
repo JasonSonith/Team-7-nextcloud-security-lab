@@ -1,172 +1,99 @@
-Here’s the updated `README.md` with Kali Linux as the testing box.
-
 # Team 7 — Nextcloud Security Lab
 
 ## Goal
+Deploy a local Nextcloud lab, attack it from Kali, document issues, score risk, and propose fixes.
 
-Deploy a local Nextcloud, attack it in a safe lab from Kali Linux, document real issues, score risk, and propose fixes.
+## What is Nextcloud
+Nextcloud is a self-hosted file share and collaboration platform.  
+Inputs: HTTP/WebDAV requests, file uploads, user credentials.  
+Core components: PHP app, storage backend (local or external), database (MariaDB/Postgres), optional caching (Redis), web server (nginx/Apache).  
+Primary features: file sync, sharing links, WebDAV, user/group auth, apps (collaboration, calendar, contacts).
 
-## Scope
+## How Nextcloud Works
+1. Client → HTTP(S) → Web server (nginx/Apache).  
+2. Web server runs PHP (PHP-FPM) executing Nextcloud PHP code.  
+3. PHP queries database for metadata and user records.  
+4. Files written to configured storage (local disk, SMB, or S3).  
+5. App layer enforces permissions, tokens, links, and API endpoints.
 
-In-scope: auth, sessions, permissions, file handling, sharing links, WebDAV/API.
-Out-of-scope: DoS, social engineering, anything outside the lab.
+## Encryption and Key Storage
+- **Server-Side Encryption (SSE):** Encrypts files on server disk. Keys can be in database or local file. If both reside on same host, compromise equals full access.  
+- **End-to-End Encryption (E2EE):** Keys remain client-side, not stored on server. Protects files even if server compromised.  
+- **Transport Encryption (TLS):** Protects client-server traffic. TLS private keys stored on host filesystem.  
+- **Best Practice:** Use E2EE for sensitive files, external KMS/HSM for server keys, and TLS with valid certificates.
 
-## Architecture
+## Docker Overview
+Docker packages applications and dependencies into images. Containers share the host kernel but run isolated processes. `docker compose` manages multiple services locally.
 
-* Docker: Nextcloud (app) + MariaDB (db) on the host.
-* Kali Linux as the testing workstation (Burp/ZAP, Nmap, wfuzz, gobuster, curl).
-* Local only. No real data.
+### Container Vulnerabilities
+- Image package CVEs or outdated dependencies.  
+- Containers running as root.  
+- Leaked secrets in `.env` or image layers.  
+- Overexposed ports or privileged flags.  
+- Outdated base images or insecure Docker daemon.
 
-## Prerequisites
+### How to Detect
+- **Trivy:** `trivy image nextcloud:latest`  
+- **Static inspection:** Review Dockerfile for bad patterns (`USER root`, embedded secrets).  
+- **Runtime:** `docker inspect` for mounts and privileges.  
+- **Benchmark:** Run CIS Docker Benchmark.  
+- **Dependency audit:** `composer audit` or OWASP Dependency-Check.
 
-* Docker Desktop
-* Git
-* OS for hosting Nextcloud: Windows, macOS, or Linux
-* Testing OS: Kali Linux (VM or bare metal)
+## Production Deployment
+Do not use the simple compose stack in production.
 
-## Target URL
+### Minimum Production Setup
+- Orchestrate via Kubernetes or hardened VMs.  
+- Isolated database host with network controls.  
+- Valid TLS via reverse proxy (nginx/Traefik).  
+- External S3 for storage with IAM roles.  
+- Key management using Vault or KMS.  
+- Secrets in encrypted store (K8s secrets).  
+- Monitoring, WAF, rate limiting, and backups.  
+- Weekly vulnerability and dependency scans.
 
-* If browsing from the host: `http://localhost:8080`
-* If browsing from Kali in a VM: `http://<host-LAN-IP>:8080`
-  Find host IP on Windows: `ipconfig` → use the IPv4 address.
+## Learning Curve
+- **Learning:** Low to moderate for users.  
+- **Teaching:** Easy for end users, harder for admins.  
+- **Maintenance:** Moderate; requires updates, patching, and key rotation.
 
-## Quick start (host)
+## Additional Components That Can Be Compromised
+- Database (MariaDB/Postgres).  
+- Caching layer (Redis).  
+- PHP runtime or web server.  
+- Docker host or Nextcloud apps.  
+- Reverse proxy or TLS endpoint.
 
-```bash
-# from repo root
-cd infra/docker
-cp .env.example .env
-docker compose --env-file .env up -d
-# then from host use http://localhost:8080
-# from Kali VM use http://<host-LAN-IP>:8080
-```
+### How to Detect Compromise
+- Monitor CVE feeds.  
+- Use SCA tools on PHP libs.  
+- Use network scans (nmap, ZAP, Burp).  
+- Verify app integrity via signatures.  
+- Maintain SBOM for all components.
 
-### .env.example
-
-```env
-MYSQL_ROOT_PASSWORD=changeme-root
-MYSQL_PASSWORD=changeme-app
-MYSQL_DATABASE=nextcloud
-MYSQL_USER=nextcloud
-NEXTCLOUD_ADMIN_USER=admin
-NEXTCLOUD_ADMIN_PASSWORD=changeme-admin
-```
-
-### Useful app commands (run on host)
-
-```bash
-docker compose exec app php occ user:add --password-from-env alice
-OC_PASS='AlicePass123!' docker compose exec app php occ user:add --password-from-env alice
-OC_PASS='BobPass123!'   docker compose exec app php occ user:add --password-from-env bob
-docker compose exec app php occ files:scan --all
-```
-
-## Kali quick tools
-
-```bash
-# discovery
-nmap -sV -p- -T4 <host-LAN-IP> -oN scans/nmap-local.txt
-
-# baseline crawl with ZAP (from Kali)
-docker run --rm -t owasp/zap2docker-stable zap-baseline.py \
-  -t http://<host-LAN-IP>:8080 -r dynamic-testing/zap-baseline.html
-```
-
-Use Burp or ZAP as intercepting proxy in Kali. Save exports to `dynamic-testing/`.
-
-## Repository layout
-
-```
-docs/                # notes, checklists
-threat-model/        # DFDs, STRIDE, assets
-infra/docker/        # docker-compose.yml, .env(.example)
-static-analysis/     # Semgrep, Trivy outputs
-dynamic-testing/     # ZAP/Burp sessions, exports
-scans/               # nmap logs
-evidence/            # screenshots, pcaps, raw proof
-reports/             # REPORT.md and appendices
-.github/workflows/   # CI
-scripts/             # helpers
-```
-
-## Evidence rules
-
-* Save everything. Name `YYYYMMDD-HHMM_area_step_expected-actual.ext`.
-* Include steps, tool version, and config.
-* Screenshots must show URL, time, and result.
-
-## Finding template
-
-```
-Title
-Impact: who is affected and how
-CVSS: <score> <vector>
-Steps to reproduce: 1..N
-Evidence: files/links in repo
-Fix: config or code guidance
-```
+## Evidence and Reproducibility
+Store tool versions, scan logs, and configurations under `scans/` or `docs/`.
 
 ---
 
-## Weekly plan (6 weeks)
+# 6-Week Weekly Plan
 
-### Week 1 — Environment
+### Week 0 — Preparation
+- Set up Kali and host networking.  
+- Copy `.env.example` to `.env`. Secure secrets.  
+- Record versions and environment baseline.
 
-* Stand up Docker stack on host.
-* Create admin + test users (alice, bob).
-* Seed sample files and shares.
-* Commit infra and `.env.example`.
-  **Deliverables**
-* Nextcloud at `localhost:8080` (host) and reachable at `http://<host-LAN-IP>:8080` from Kali
-* Setup notes in `docs/`
+### Week 1 — Lab Setup & Baseline Scans
+- Deploy Nextcloud with Docker Compose.  
+- Create test accounts.  
+- Run initial `nmap`, `nikto`, `trivy`, `composer audit`.  
+- Save outputs in `scans/`.
 
-### Week 2 — Threat model
+### Week 2 — Threat Model & Key Review
+- Create DFD and STRIDE diagrams.  
+- Inspect config for secrets and key paths.  
+- Test TLS and key storage.  
+- Deliver key management recommendations.
 
-* Context + DFD (users, Kali, app, db, boundaries).
-* Assets and trust boundaries.
-* STRIDE per component. Pick top 10 risks.
-  **Deliverables**
-* `threat-model/diagram.(drawio|png)`
-* `threat-model/STRIDE.md`
-
-### Week 3 — Auth and access control tests
-
-* Password policy, lockout, sessions, CSRF.
-* IDOR on users and shares.
-  **Deliverables**
-* `dynamic-testing/` exports
-* 2–3 preliminary findings
-
-### Week 4 — Files, sharing, WebDAV/API
-
-* Upload handling: content-type confusion, SVG/HTML, traversal.
-* Public links: revoke tests, token reuse, expiry.
-* WebDAV verbs, etags, caching.
-  **Deliverables**
-* More findings + proof
-* `scans/` and `evidence/` updated
-
-### Week 5 — Scans and scoring
-
-* Semgrep (PHP rules if applicable).
-* Trivy for images/Dockerfile.
-* Nmap baseline.
-* CVSS for all findings. Draft fixes.
-  **Deliverables**
-* `static-analysis/` and `scans/` outputs
-* Findings complete with CVSS
-
-### Week 6 — Report and cleanup
-
-* Finalize `reports/REPORT.md`.
-* Reproduce on fresh lab.
-* Trim out-of-scope. Tag release.
-  **Deliverables**
-* Final report with exec summary, methods, findings, fixes, appendix
-* Evidence bundle consistent and reproducible
-
----
-
-## Safety and ethics
-
-Test only inside this lab. No real users. No production targets. No DoS.
+### Week 3 — Auth & Session Security
+- Test password strength, lockout, CS
