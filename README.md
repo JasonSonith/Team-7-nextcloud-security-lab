@@ -96,4 +96,32 @@ Store tool versions, scan logs, and configurations under `scans/` or `docs/`.
 - Deliver key management recommendations.
 
 ### Week 3 — Auth & Session Security
-- Test password strength, lockout, CS
+- Test password strength, lockout, CSRF, brute-force limits.  
+- Audit Nextcloud apps and remove unused ones.  
+- Capture Burp/ZAP findings.
+
+### Week 4 — File Handling & Container Hardening
+- Fuzz file uploads and WebDAV operations.  
+- Check container configs for privilege issues.  
+- Run CIS Docker Benchmark.  
+- Document vulnerabilities.
+
+### Week 5 — CVE Mapping & Remediation
+- Run full SCA and CVE scans.  
+- Score findings with CVSS.  
+- Propose mitigations and upgrade paths.
+
+### Week 6 — Final Hardening & Report
+- Rebuild environment with fixes.  
+- Generate hardened compose or K8s manifest.  
+- Produce final report and evidence bundle.
+
+---
+
+# Key Commands
+```bash
+trivy image nextcloud:latest
+docker compose ps && docker inspect <container>
+grep -n "USER\|ADD\|COPY\|ENV" infra/docker/Dockerfile
+docker run --rm owasp/zap2docker-stable zap-baseline.py -t http://localhost:8080 -r report.html
+composer audit --no-interaction
