@@ -1,39 +1,40 @@
 # Week 2 — Configuration Audit
 
-Brief: Capture key settings and document secrets handling.
+Brief: Capture key settings, document secrets handling, and record HTTP cookie exposure on :8080.
 
 ## Findings
 
 ### Secrets in app config
-- `passwordsalt` present in `config.php`.   Redact in evidence. 
-- `secret` present in `config.php`.   Redact in evidence. 
-- `dbpassword` in `config.php` is a lab default (`changeme-app`). ➜ Rotate. 
+- `passwordsalt` present in `config.php`. Redact in evidence.
+- `secret` present in `config.php`. Redact in evidence.
+- `dbpassword` in `config.php` is a lab default (`changeme-app`). **Rotate.**
+
+Evidence: `docs/evidence/week2/CONFIG-redacted.txt`, `docs/evidence/week2/20251018-grep-config-secrets.txt`
 
 ### DB container environment
-- `MARIADB_ROOT_PASSWORD` is set (in container env). Handle as secret; never commit.
-- `MARIADB_PASSWORD` is set (app user password). Must match the app’s `dbpassword`. 
-- `MARIADB_USER=nextcloud`. Expected for this lab. :contentReference[oaicite:5]{index=5}
+- `MARIADB_ROOT_PASSWORD` is set (container env). Treat as secret; never commit.
+- `MARIADB_PASSWORD` is set (app user password). Must match the app’s `dbpassword`.
+- `MARIADB_USER=nextcloud` (expected for this lab).
 
-## Paths and trust (unchanged from Week 1)
-- Data directory: `/var/www/html/data` (default).
+Evidence: `docs/evidence/week2/20251018-db-env.txt`
+
+### Paths and trust
+- Data directory: `/var/www/html/data` (default). :contentReference[oaicite:0]{index=0}
 - Trusted domains: `["localhost", "10.0.0.47"]` (local only).
 
-## Evidence policy
-- Raw dumps (e.g., `CONFIG-raw.txt`) are **ignored** by Git.
-- Redacted evidence (`CONFIG-redacted.txt`) is committed.
-- DB env snapshot (`20251018-db-env.txt`) and config grep (`20251018-grep-config-secrets.txt`) are committed.
+Evidence: `docs/evidence/week2/20251018-1342-ls-config-and-data.txt`
 
-## Required actions
-1. **Rotate DB app password**  
-   - Choose a strong value for the app DB password.
-   - Update it consistently:
-     - Container env (`MARIADB_PASSWORD` / `.env`)  
-     - Nextcloud `config.php` → `dbpassword`
-   - Restart stack and re-test login.
+### Transport security (current HTTP-only on 10.0.0.47:8080)
+- Server returns `302` to `/login`.
+- `Set-Cookie` values are issued over HTTP without the `Secure` flag; cookies are `HttpOnly; SameSite=Lax`. 
+- No HSTS observed on HTTP response headers. 
 
-2. **Keep secrets out of Git**  
-   - `.env` stays local.  
-   - Only redacted files are committed.
+Evidence:
+- `docs/evidence/week2/20251018-1547-http-8080-head.txt` (headers) 
+- `docs/evidence/week2/burp-post-cookies.png` (login flow cookies)
+- `dynamic-testing/20251018-burp-post-login` (intercepted POST)
 
-3. **Track versions for reproducibility**  
-   - Save `occ -V` output in `docs/evidence/week2/`.
+### Nextcloud encryption
+- Status: **Disabled**.
+
+Evidence: `docs/evidence/week2/2025
