@@ -1,0 +1,21 @@
+HTTP/2 302 
+server: nginx/1.29.2
+date: Sat, 18 Oct 2025 22:20:32 GMT
+content-type: text/html; charset=UTF-8
+referrer-policy: no-referrer
+x-content-type-options: nosniff
+x-frame-options: SAMEORIGIN
+x-permitted-cross-domain-policies: none
+x-robots-tag: noindex, nofollow
+x-xss-protection: 1; mode=block
+x-powered-by: PHP/8.2.29
+set-cookie: ocf3wotrto0k=6a4f65b0ba31894baad833a9323efebc; path=/; HttpOnly; SameSite=Lax
+set-cookie: oc_sessionPassphrase=5DyAvSkrN42I1h0aq8R5%2B2tVgFzNpKk5rn6gPoIMXXGpOb%2FUZOHt7UqXNIYWN%2BTKg0ApqTwnNlG18o%2F0MRmOcU3SAzWvbE%2FSQKWkB%2BV2iW1Jf5TirDosQ5G1fOS5VyKF; path=/; HttpOnly; SameSite=Lax
+set-cookie: ocf3wotrto0k=6a4f65b0ba31894baad833a9323efebc; path=/; HttpOnly; SameSite=Lax
+content-security-policy: default-src 'self'; script-src 'self' 'nonce-NWtwQ1pJTW9GSjRXVFM0bXh3ZUNWejRSRmlOUHF0QkRUWkJ0blZQT1c1QT06ckhnV1ZjY0RXZHhWT1dRSm5VN0xCVzFhV2hNSDg0b0hPdGdaL2lXQk1kUT0='; style-src 'self' 'unsafe-inline'; frame-src *; img-src * data: blob:; font-src 'self' data:; media-src *; connect-src *; object-src 'none'; base-uri 'self';
+set-cookie: nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59 GMT; SameSite=lax
+set-cookie: nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59 GMT; SameSite=strict
+set-cookie: ocf3wotrto0k=6a4f65b0ba31894baad833a9323efebc; path=/; HttpOnly; SameSite=Lax
+location: http://10.0.0.47:443/login
+strict-transport-security: max-age=31536000
+

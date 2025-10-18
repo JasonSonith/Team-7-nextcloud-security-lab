@@ -1,0 +1,20 @@
+HTTP/1.1 302 Found
+Date: Sat, 18 Oct 2025 20:47:52 GMT
+Server: Apache/2.4.62 (Debian)
+Referrer-Policy: no-referrer
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Permitted-Cross-Domain-Policies: none
+X-Robots-Tag: noindex, nofollow
+X-XSS-Protection: 1; mode=block
+X-Powered-By: PHP/8.2.29
+Set-Cookie: ocf3wotrto0k=592683c6ed56d9c2232cd7154e0b1cbb; path=/; HttpOnly; SameSite=Lax
+Set-Cookie: oc_sessionPassphrase=uEEyaQX0%2FrCjdAw9BMZuBBCZWQ%2B%2BlCkaymWynhs1DozqYNhQPEfiDDp1yhyCTI1aGOso3wjoA6knLWMmV4drUvYnqcJagXQq32jb3RYr7z0rY4Xbhwfe54a4qqApcejU; path=/; HttpOnly; SameSite=Lax
+Set-Cookie: ocf3wotrto0k=592683c6ed56d9c2232cd7154e0b1cbb; path=/; HttpOnly; SameSite=Lax
+Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-QmxKYXo5WVVlQnRmTlhQeHZZSndYOS8zOVpNeU1lUTRJbWFDY09EcHBRYz06U2lNdHBMdC9OMW9lWEVXRzFiVmJhSVd2dnRKZVVweHJhU1N3UDRqUTR6RT0='; style-src 'self' 'unsafe-inline'; frame-src *; img-src * data: blob:; font-src 'self' data:; media-src *; connect-src *; object-src 'none'; base-uri 'self';
+Set-Cookie: nc_sameSiteCookielax=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59 GMT; SameSite=lax
+Set-Cookie: nc_sameSiteCookiestrict=true; path=/; httponly;expires=Fri, 31-Dec-2100 23:59:59 GMT; SameSite=strict
+Set-Cookie: ocf3wotrto0k=592683c6ed56d9c2232cd7154e0b1cbb; path=/; HttpOnly; SameSite=Lax
+Location: http://10.0.0.47:8080/login
+Content-Type: text/html; charset=UTF-8
+
