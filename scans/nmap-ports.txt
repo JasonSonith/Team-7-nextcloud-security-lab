@@ -1,0 +1,11 @@
+# Nmap 7.95 scan initiated Sat Oct 18 15:43:52 2025 as: /usr/lib/nmap/nmap --privileged -sV -p 80,443,8080 -T4 -oN scans/nmap-ports.txt 10.0.0.47
+Nmap scan report for host.docker.internal (10.0.0.47)
+Host is up (0.00032s latency).
+
+PORT     STATE    SERVICE VERSION
+80/tcp   filtered http
+443/tcp  filtered https
+8080/tcp open     http    Apache httpd 2.4.62 ((Debian))
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Sat Oct 18 15:44:00 2025 -- 1 IP address (1 host up) scanned in 7.55 seconds
