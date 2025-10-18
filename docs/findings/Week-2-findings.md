@@ -5,13 +5,13 @@ Brief: Capture key settings and document secrets handling.
 ## Findings
 
 ### Secrets in app config
-- `passwordsalt` present in `config.php`.  ✅ Redact in evidence. :contentReference[oaicite:0]{index=0}
-- `secret` present in `config.php`.  ✅ Redact in evidence. :contentReference[oaicite:1]{index=1}
-- `dbpassword` in `config.php` is a lab default (`changeme-app`). ➜ Rotate. :contentReference[oaicite:2]{index=2}
+- `passwordsalt` present in `config.php`.   Redact in evidence. 
+- `secret` present in `config.php`.   Redact in evidence. 
+- `dbpassword` in `config.php` is a lab default (`changeme-app`). ➜ Rotate. 
 
 ### DB container environment
-- `MARIADB_ROOT_PASSWORD` is set (in container env). Handle as secret; never commit. :contentReference[oaicite:3]{index=3}
-- `MARIADB_PASSWORD` is set (app user password). Must match the app’s `dbpassword`. :contentReference[oaicite:4]{index=4}
+- `MARIADB_ROOT_PASSWORD` is set (in container env). Handle as secret; never commit.
+- `MARIADB_PASSWORD` is set (app user password). Must match the app’s `dbpassword`. 
 - `MARIADB_USER=nextcloud`. Expected for this lab. :contentReference[oaicite:5]{index=5}
 
 ## Paths and trust (unchanged from Week 1)
