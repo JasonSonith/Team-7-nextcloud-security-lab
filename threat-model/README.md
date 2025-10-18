@@ -1,9 +1,5 @@
 # Nextcloud Lab — Data Flow Diagram (DFD)
 
-This README matches the current DFD (`threat-model/diagram.drawio.png`). The editable file is `threat-model/diagram.drawio`.
-
-## Diagram
-
 ![Nextcloud Lab DFD](./Data-flow-diagram.png)
 
 ## Topology (as shown)
