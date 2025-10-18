@@ -20,7 +20,6 @@ This README matches the current DFD (`threat-model/diagram.drawio.png`). The edi
 
 ## Trust Boundaries (visual style)
 
-- Rounded, dashed, 4 px border, ~8% white fill on dark canvas.
 - **VM** around Kali.
 - **Host OS** around Docker elements, volumes, and Nginx.
 - **Docker Network** around **Nextcloud app** and **MariaDB**.
@@ -48,24 +47,4 @@ The diagram uses arrow labels (orthogonal connectors). Add numeric badges if you
 - **Volumes**: `app-data`, `config`, `uploads` (includes files and potential secrets/keys).
 - **Nginx**: TLS certs/keys if terminating TLS on host.
 
-## Styling Conventions (draw.io)
 
-- Canvas: `#0f1115` dark.  
-- Orthogonal connectors, 2 px; sensitive flows colored red; others gray.  
-- Small lock glyph next to sensitive flow labels.  
-- Fonts: Inter/Roboto 12–14 pt; monospace for paths.
-
-## Reproduce / Export
-
-1. Open `threat-model/diagram.drawio`.  
-2. Keep libraries enabled: Cisco, AWS, Azure, GCP, Material, Simple Icons.  
-3. Ensure the four zones and labels match the **Topology** above.  
-4. Export PNG 2×–3× to `threat-model/diagram.drawio.png`.
-
-## Evidence Checklist
-
-- [ ] `threat-model/diagram.drawio` committed.  
-- [ ] `threat-model/diagram.drawio.png` exported and committed.  
-- [ ] Edge labels present: `VM↔Host`, `VM↔Docker Network`, `app↔db`.  
-- [ ] Flow labels present: Login, Session/CSRF, Downloads, Uploads (write), Admin API, Proxy pass, App↔DB.  
-- [ ] Volumes annotated: `app-data`, `config`, `uploads`.
