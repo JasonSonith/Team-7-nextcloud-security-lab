@@ -1,69 +1,71 @@
 # Nextcloud Lab — Data Flow Diagram (DFD)
 
-This README documents the Week-2 DFD for Team 7’s Nextcloud security lab. The diagram file is maintained in `threat-model/diagram.drawio.png`. Keep this README in the same folder.
+This README matches the current DFD (`threat-model/diagram.drawio.png`). The editable file is `threat-model/diagram.drawio`.
 
 ## Diagram
 
 ![Nextcloud Lab DFD](./Data-flow-diagram.png)
 
-**Source:** `threat-model/diagram.drawio` (editable) → exported as `threat-model/diagram.drawio.png`.
+## Topology (as shown)
 
-## Scope Nodes
+- **Users** (outside all host/VM boundaries): two browser clients labelled **User** and **Admin**.
+- **Attacker VM**: **Kali (Burp/ZAP)** inside its own **VM** trust boundary.
+- **Host OS**: outer trust boundary that contains:
+  - **Docker Network** (inner dashed boundary) with:
+    - **Nextcloud app** (web UI + WebDAV endpoint)
+    - **MariaDB**
+    - **App↔DB split** (thin dashed vertical line labelled `app↔db`)
+  - **Host Volumes**: `app-data`, `config`, `uploads` (three storage tiles)
+  - **Nginx Reverse Proxy** (optional TLS termination and routing)
 
-- **Browsers (User/Admin)** — external clients.
-- **Kali (Burp/ZAP proxy)** — attacker/test VM.
-- **Reverse proxy (Nginx/Caddy)** — optional TLS termination and routing.
-- **Nextcloud app (container)** — application service.
-- **MariaDB (container)** — database for users/shares/metadata.
-- **Host volumes** — app data, config, uploads.
-- **Docker network** — bridge where app and DB communicate.
-- **Host OS** — Docker engine and bind-mounted storage.
+## Trust Boundaries (visual style)
 
-## Trust Boundaries
+- Rounded, dashed, 4 px border, ~8% white fill on dark canvas.
+- **VM** around Kali.
+- **Host OS** around Docker elements, volumes, and Nginx.
+- **Docker Network** around **Nextcloud app** and **MariaDB**.
+- **Edge labels** where they meet: `VM↔Host`, `VM↔Docker Network`, plus the interior `app↔db` split line.
 
-- **Host OS** — dashed rounded container around Docker engine, app, DB, volumes, reverse proxy.
-- **Docker network** — dashed container around **Nextcloud** and **MariaDB**.
-- **App↔DB split** — thin dashed line between app and DB labeled `app↔db`.
-- **VM** — dashed container around **Kali (Burp/ZAP)**.
-- **Edge labels** where zones meet: `host↔VM`, `VM↔Docker network`, `app↔db`.
+## Numbered/Named Flows in the diagram
 
-## Numbered Flows
+The diagram uses arrow labels (orthogonal connectors). Add numeric badges if your rubric requires 1–9.
 
-1. **Login credentials** — Browser → App (username/password POST).  
-2. **Session cookie** — App → Browser (Set-Cookie) and Browser → App on requests.  
-3. **CSRF token** — App → Browser; Browser → App on state-changing actions.  
-4. **WebDAV auth** — Client → App using HTTP Basic to `/remote.php/dav/files/<user>/`.  
-5. **File upload** — Browser → App; App → Host volumes (write).  
-6. **File download** — App → Browser; App → Host volumes (read).  
-7. **Admin API/config** — Admin Browser → App (management endpoints).  
-8. **App↔DB queries** — SQL over Docker bridge for auth, shares, metadata.  
-9. **Proxy pass (optional)** — Browser/Kali → Reverse proxy → App.
+- **Login credentials** — Browsers → Nextcloud app (inside Docker Network).
+- **Session cookies, CSRF tokens** — Nextcloud app ↔ Browsers (state-changing requests carry the CSRF token).
+- **Downloads** — Nextcloud app → Browsers.
+- **File uploads (write)** — Browsers → Nextcloud app → **uploads** volume.
+- **App reads/writes data** — Nextcloud app ↔ **app-data/config/uploads** volumes.
+- **App↔DB queries** — Nextcloud app ↔ MariaDB over the Docker bridge.
+- **Admin API** — Admin browser → Nextcloud app.
+- **Proxy pass** — Traffic can traverse **Nginx Reverse Proxy** → Nextcloud app (if enabled).
+- **VM↔Host** and **VM↔Docker Network** — Labeled on the edges to show crossing trust zones from Kali.
 
-Security-sensitive flows: **1–4**. Require TLS and secure cookie flags.
+> Security-sensitive items: credentials, session cookies, CSRF tokens, and WebDAV authentication (if used). Require HTTPS and secure cookie flags.
 
 ## Data at Rest and Keys
 
-- **MariaDB**: users, shares, metadata.  
-- **Host volumes**: app data, config, uploads, potential keys/secrets.  
-- **Reverse proxy**: TLS certs/keys if terminating TLS on host.
+- **MariaDB**: users, shares, metadata.
+- **Volumes**: `app-data`, `config`, `uploads` (includes files and potential secrets/keys).
+- **Nginx**: TLS certs/keys if terminating TLS on host.
 
 ## Styling Conventions (draw.io)
 
-- Dark canvas `#0f1115`. Boundaries: 4px **dashed**, radius 12, ~8% white fill.  
-- Sensitive arrows red; others neutral. Small lock icon next to 1–4.  
-- Use orthogonal connectors and numbered badges `1..9` near mid-arrow.  
-- Fonts: Inter/Roboto 12–14 pt; monospace for paths and IPs.
+- Canvas: `#0f1115` dark.  
+- Orthogonal connectors, 2 px; sensitive flows colored red; others gray.  
+- Small lock glyph next to sensitive flow labels.  
+- Fonts: Inter/Roboto 12–14 pt; monospace for paths.
 
-## How to Reproduce
+## Reproduce / Export
 
-1. Open `threat-model/diagram.drawio` in draw.io.  
-2. Ensure **More Shapes…** libraries: Cisco, AWS, Azure, GCP, Material, Simple Icons.  
-3. Keep nodes, boundaries, and flows as specified above.  
-4. Export: **PNG** at 2× or 3× → overwrite `threat-model/diagram.drawio.png`.
+1. Open `threat-model/diagram.drawio`.  
+2. Keep libraries enabled: Cisco, AWS, Azure, GCP, Material, Simple Icons.  
+3. Ensure the four zones and labels match the **Topology** above.  
+4. Export PNG 2×–3× to `threat-model/diagram.drawio.png`.
 
 ## Evidence Checklist
 
 - [ ] `threat-model/diagram.drawio` committed.  
 - [ ] `threat-model/diagram.drawio.png` exported and committed.  
-- [ ] README updated if topology changes.  
-- [ ] Numbered flows 1–9 visible and legend present in the diagram.
+- [ ] Edge labels present: `VM↔Host`, `VM↔Docker Network`, `app↔db`.  
+- [ ] Flow labels present: Login, Session/CSRF, Downloads, Uploads (write), Admin API, Proxy pass, App↔DB.  
+- [ ] Volumes annotated: `app-data`, `config`, `uploads`.
