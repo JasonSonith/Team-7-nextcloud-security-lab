@@ -1,0 +1,9 @@
+# Nmap 7.95 scan initiated Sat Oct 18 15:51:45 2025 as: /usr/lib/nmap/nmap --privileged -Pn -p 80,8080 -sS -T4 -oN scans/nmap-80-8080.txt 10.0.0.47
+Nmap scan report for host.docker.internal (10.0.0.47)
+Host is up (0.00028s latency).
+
+PORT     STATE    SERVICE
+80/tcp   filtered http
+8080/tcp open     http-proxy
+
+# Nmap done at Sat Oct 18 15:51:46 2025 -- 1 IP address (1 host up) scanned in 1.28 seconds
