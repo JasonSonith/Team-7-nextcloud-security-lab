@@ -10,6 +10,7 @@ services:
       - MARIADB_PASSWORD=${MYSQL_PASSWORD}
     volumes:
       - db:/var/lib/mysql
+
   app:
     image: nextcloud:29-apache
     restart: always
@@ -26,16 +27,18 @@ services:
       - db
     volumes:
       - nc:/var/www/html
-volumes:
-  db: {}
-  nc: {}
 
   proxy:
     image: nginx:alpine
     restart: always
-    ports: ["443:443"]
+    depends_on:
+      - app
+    ports:
+      - "443:443"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - ./nginx/certs:/etc/nginx/certs:ro
-    depends_on: [app]
 
+volumes:
+  db: {}
+  nc: {}
