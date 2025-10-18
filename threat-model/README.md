@@ -4,7 +4,7 @@ This README documents the Week-2 DFD for Team 7’s Nextcloud security lab. The 
 
 ## Diagram
 
-![Nextcloud Lab DFD](./diagram.drawio.png)
+![Nextcloud Lab DFD](./Data-flow-diagram.png)
 
 **Source:** `threat-model/diagram.drawio` (editable) → exported as `threat-model/diagram.drawio.png`.
 
