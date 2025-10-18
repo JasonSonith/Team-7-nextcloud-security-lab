@@ -1,8 +1,16 @@
-# Week 2 — Config, Secrets, Key Paths
+# Week 2 — Configuration Audit
 
-instanceid: ocf3wotrto0k
-trusted_domains: ["localhost, 10.0.0.47"]
-datadirectory: /var/www/html/data
-version: 29.0.16.1
-secrets: dbpassword/secret/passwordsalt [redacted in evidence]
-encryption: Disabled
+Brief: Capture key Nextcloud settings observed this week and flag security implications.
+
+## Instance
+- **instanceid:** `ocf3wotrto0k`
+- **version:** `29.0.16.1`
+
+## Core Paths
+- **data directory:** `/var/www/html/data`
+
+## Trusted Domains
+```yaml
+trusted_domains:
+  - localhost
+  - 10.0.0.47
