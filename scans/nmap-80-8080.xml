@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.95 scan initiated Sun Oct 19 22:33:56 2025 as: /usr/lib/nmap/nmap -&#45;privileged -Pn -p 80,8080 -sS -T4 -oX scans/nmap-80-8080.xml 10.0.0.47 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -&#45;privileged -Pn -p 80,8080 -sS -T4 -oX scans/nmap-80-8080.xml 10.0.0.47" start="1760931236" startstr="Sun Oct 19 22:33:56 2025" version="7.95" xmloutputversion="1.05">
+<scaninfo type="syn" protocol="tcp" numservices="2" services="80,8080"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<hosthint><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="10.0.0.47" addrtype="ipv4"/>
+<address addr="E4:C7:67:9A:35:F8" addrtype="mac" vendor="Intel Corporate"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<host starttime="1760931237" endtime="1760931238"><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="10.0.0.47" addrtype="ipv4"/>
+<address addr="E4:C7:67:9A:35:F8" addrtype="mac" vendor="Intel Corporate"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="80"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="8080"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="http-proxy" method="table" conf="3"/></port>
+</ports>
+<times srtt="0" rttvar="5000" to="100000"/>
+</host>
+<runstats><finished time="1760931238" timestr="Sun Oct 19 22:33:58 2025" summary="Nmap done at Sun Oct 19 22:33:58 2025; 1 IP address (1 host up) scanned in 2.03 seconds" elapsed="2.03" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>
