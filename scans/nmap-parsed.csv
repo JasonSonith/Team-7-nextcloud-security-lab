@@ -1,0 +1,3 @@
+host,ip,proto,port,state,service,product,version
+10.0.0.47,10.0.0.47,tcp,80,filtered,http,,
+10.0.0.47,10.0.0.47,tcp,8080,filtered,http-proxy,,
