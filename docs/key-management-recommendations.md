@@ -11,6 +11,7 @@
   - Filesystem storage for TLS keys
   - No encryption at rest
   - No automated rotation
+---
 
   ## Recommendations
 
@@ -47,7 +48,7 @@
   - Principle of least privilege
   - Separate keys per environment (dev/staging/prod)
   - Audit logs for all key access
-
+---
   ## Implementation Priority
 
   1. **Immediate:** Move to proper secret manager (Vault/KMS)
@@ -55,7 +56,7 @@
   3. **Week 2:** Set up key rotation policies
   4. **Week 3:** Implement monitoring and alerts
   5. **Ongoing:** Regular security audits
-
+---
   ## Evidence
   - See: scans/nmap-ssl-enum.txt (TLS configuration)
   - See: infra/docker/.env.example (secret template)
