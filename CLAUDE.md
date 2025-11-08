@@ -257,3 +257,4 @@ For each vulnerability finding:
 
 All evidence files must be reproducible by teammates.
 - add this to a "start-up.md" file in the docker infra directory or in a more suitable place so i can reference how to start up docker
+- i want CLAUDE.md to remember all my progress of this project here on out. So far ive done everything from week 0-2 except for the last part in week two where i have to "Deliver key-management recommendations"
