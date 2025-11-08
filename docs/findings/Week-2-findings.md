@@ -44,6 +44,83 @@ Evidence:
 
 Evidence: `docs/evidence/week2/20251018-encryption-status.txt`, `docs/evidence/week2/20251018-occ-version.txt`
 
+## Credential Storage Locations
+
+### Finding: Plaintext Secrets in .env File
+
+**Location:** `infra/docker/.env`
+
+**Credentials stored:**
+1. **Database credentials**
+   - `MYSQL_ROOT_PASSWORD` — MariaDB root password
+   - `MYSQL_PASSWORD` — Nextcloud app database password
+   - `MYSQL_USER` — Database username (nextcloud)
+   - `MYSQL_DATABASE` — Database name
+
+2. **Nextcloud admin credentials**
+   - `NEXTCLOUD_ADMIN_USER` — Admin username
+   - `NEXTCLOUD_ADMIN_PASSWORD` — Admin password
+
+**Risk Assessment:**
+- **Severity:** HIGH
+- **CVSS 3.1:** 7.5 (AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:N)
+- **STRIDE Categories:** Information Disclosure (I), Elevation of Privilege (E)
+
+**Security Implications:**
+- All secrets stored in plaintext without encryption
+- File accessible to anyone with filesystem access to host
+- Compromised `.env` exposes full database and admin access
+- Docker compose passes secrets as environment variables (visible in `docker inspect`)
+- No secret rotation mechanism documented
+- Default passwords from `.env.example` may still be in use
+
+**Evidence:** `infra/docker/.env` (gitignored, not committed)
+
+### Finding: TLS Private Key on Filesystem
+
+**Location:** `infra/docker/nginx/certs/lab.key`
+
+**Risk Assessment:**
+- **Severity:** HIGH
+- **CVSS 3.1:** 7.4 (AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N)
+- **STRIDE Categories:** Spoofing (S), Information Disclosure (I)
+
+**Security Implications:**
+- Private key stored in plaintext on host filesystem
+- No HSM or secure enclave protection
+- Accessible to anyone with volume mount access
+- No key rotation procedure documented
+- Self-signed certificate with 30-day validity
+- Key compromise enables MITM attacks and session decryption
+
+**Evidence:**
+- `infra/docker/nginx/certs/lab.key` (gitignored)
+- `infra/docker/nginx/certs/lab.crt` (committed to repo)
+
+### Finding: Environment Variable Secret Exposure
+
+**Vector:** Docker container environment variables
+
+**Risk Assessment:**
+- **Severity:** MEDIUM
+- **CVSS 3.1:** 6.5 (AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N)
+- **STRIDE Categories:** Information Disclosure (I)
+
+**Security Implications:**
+- All `.env` secrets passed to containers as environment variables
+- Visible via `docker inspect <container>`
+- Visible via `/proc/<pid>/environ` inside containers
+- Logged in container orchestration systems
+- Not suitable for production secret management
+
+**Commands to expose secrets:**
+```bash
+docker compose -f infra/docker/docker-compose.yml exec db env | grep PASSWORD
+docker compose -f infra/docker/docker-compose.yml exec app env | grep PASSWORD
+docker inspect nextcloud-db | grep -i password
+```
+
 ## Required actions
 - Rotate DB app password (`MARIADB_PASSWORD` and Nextcloud `dbpassword`) and restart.
 - Keep `.env` and raw secrets out of Git; commit only redacted evidence.
+- Document key management recommendations (Week 2 deliverable).
