@@ -16,14 +16,10 @@
 
 ### Test Results
 
-| Password Tested | Result (Accept/Reject) | Error Message | Screenshot |
-|----------------|------------------------|---------------|------------|
-| 123456         | REJECTED               | Password must be at least 10 characters | password-strength-10char-minimum.png |
-| password       | REJECTED               | Password must be at least 10 characters | password-strength-10char-minimum.png |
-| abc            | REJECTED               | Password must be at least 10 characters | password-strength-10char-minimum.png |
-| qwerty         | REJECTED               | Password must be at least 10 characters | password-strength-10char-minimum.png |
-| admin123       | REJECTED               | Password must be at least 10 characters | password-strength-10char-minimum.png |
-| password123    | REJECTED               | Password is among 100000 most commonly used passwords | password-strength-common-password-check.png |
+| Password Tested | Result (Accept/Reject) | Error Message                                         | Screenshot                                  |
+| --------------- | ---------------------- | ----------------------------------------------------- | ------------------------------------------- |
+| 123456          | REJECTED               | Password must be at least 10 characters               | password-strength-10char-minimum.png        |
+| password123     | REJECTED               | Password is among 100000 most commonly used passwords | password-strength-common-password-check.png |
 
 ### Findings
 
