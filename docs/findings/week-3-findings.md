@@ -72,7 +72,7 @@ No action required. The current password policy demonstrates excellent security 
 
 ### Test Results
 
-**Rate limiting triggered:** YES ✅
+**Rate limiting triggered:** YES 
 
 **Rate limit threshold:** ~9 failed login attempts (requests 0-8 showed status 303, requests 9-25 showed status 429)
 
@@ -90,7 +90,7 @@ No action required. The current password policy demonstrates excellent security 
 
 ### Findings
 
-**Status:** PASS ✅ (Strong Security Controls Present)
+**Status:** PASS  (Strong Security Controls Present)
 
 **Description:**
 
