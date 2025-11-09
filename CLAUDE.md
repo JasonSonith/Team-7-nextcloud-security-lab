@@ -161,7 +161,7 @@ Each test requires:
 
 ## Current Project Progress
 
-**Last Updated:** 2025-11-08
+**Last Updated:** 2025-11-09
 
 ### Completed Work
 
@@ -195,12 +195,20 @@ Completed Tests:
    - Evidence: `docs/evidence/week3/brute-force-test/`
    - Findings documented in `docs/findings/week-3-findings.md`
 
-Delegated Tests:
-- Session cookie security flags testing (HttpOnly, Secure, SameSite)
-- document.cookie access testing
+3. ✅ **Session Cookie Security Flags Testing** (PASS)
+   - Delegated/completed testing of HttpOnly, Secure, SameSite attributes
+   - document.cookie access testing completed
+
+4. ✅ **CSRF Token Validation Testing** (PASS)
+   - CSRF tokens required for all state-changing requests
+   - Tokens validated for integrity (HTTP 412 when missing/modified)
+   - Time-based tokens (reusable within session window)
+   - Token location: `requesttoken` HTTP header
+   - Tool used: Burp Suite Proxy and Repeater
+   - Evidence: `docs/evidence/week3/csrf-testing/`
+   - Findings documented in `docs/findings/week-3-findings.md`
 
 Pending Tests:
-- CSRF token validation testing
 - XSS vulnerability testing (filenames, share notes, profile fields)
 - Nextcloud apps audit
 - OWASP ZAP baseline scan
@@ -219,16 +227,17 @@ For Week 3 testing:
 **Security Strengths Identified:**
 - Strong password policy (10-char minimum + common password blocking)
 - Effective brute-force protection via rate limiting
-- Proper CSRF token implementation (observed in requests)
+- Robust CSRF token validation (required, integrity-checked, time-based)
+- Session cookie security flags properly implemented
 
-**No Critical Vulnerabilities Found:** Both completed tests resulted in PASS ratings
+**No Critical Vulnerabilities Found:** All four completed tests resulted in PASS ratings
 
 ### Evidence Organization
 
 Week 3 evidence is organized in subdirectories:
 - `docs/evidence/week3/password-testing/` - Password strength test screenshots
 - `docs/evidence/week3/brute-force-test/` - Burp Intruder attack results and screenshots
-- `docs/evidence/week3/csrf-testing/` - (Pending) CSRF validation tests
+- `docs/evidence/week3/csrf-testing/` - CSRF token validation tests (5 screenshots)
 
 ### Tools Used in Week 3
 
@@ -262,10 +271,9 @@ Week 3 evidence is organized in subdirectories:
 
 ### Next Steps
 
-1. Complete CSRF token validation testing
-2. Complete remaining Week 3 tests (XSS, app audit, ZAP scan)
-3. Finalize Week 2 key management recommendations
-4. Begin Week 4: File handling and container hardening
+1. Complete remaining Week 3 tests (XSS, app audit, ZAP scan)
+2. Finalize Week 2 key management recommendations
+3. Begin Week 4: File handling and container hardening
 
 ## Security Considerations
 
