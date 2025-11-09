@@ -157,6 +157,89 @@ Each test requires:
 - **Week 5:** CVE mapping, CVSS scoring, remediation proposals
 - **Week 6:** Hardening rebuild, final report and evidence bundle
 
+## Current Project Progress
+
+**Last Updated:** 2025-11-08
+
+### Completed Work
+
+**Week 0-1: ✅ COMPLETE**
+- Environment setup and baseline scans completed
+- Docker stack deployed (Nextcloud 29-apache, MariaDB 11, nginx proxy)
+- Initial nmap, trivy scans performed
+- Test accounts created
+
+**Week 2: ⚠️ MOSTLY COMPLETE**
+- Threat model created (DFD + STRIDE analysis in threat-model/)
+- TLS configuration implemented (nginx reverse proxy on port 443)
+- Self-signed certificates generated for 10.0.0.47
+- **PENDING:** Key management recommendations document
+
+**Week 3: 🔄 IN PROGRESS**
+
+Completed Tests:
+1. ✅ **Password Strength Testing** (PASS)
+   - Nextcloud enforces 10-character minimum password policy
+   - Common password database checking (blocks top 100,000 weak passwords)
+   - Evidence: `docs/evidence/week3/password-testing/`
+   - Findings documented in `docs/findings/week-3-findings.md`
+
+2. ✅ **Brute-Force Protection Testing** (PASS)
+   - Rate limiting triggered after ~9 failed login attempts
+   - HTTP 429 "Too Many Requests" response implemented
+   - Temporary IP-based rate limiting (not permanent account lockout)
+   - Tool used: Burp Suite Intruder
+   - Evidence: `docs/evidence/week3/brute-force-test/`
+   - Findings documented in `docs/findings/week-3-findings.md`
+
+Delegated Tests:
+- Session cookie security flags testing (HttpOnly, Secure, SameSite)
+- document.cookie access testing
+
+Pending Tests:
+- CSRF token validation testing
+- XSS vulnerability testing (filenames, share notes, profile fields)
+- Nextcloud apps audit
+- OWASP ZAP baseline scan
+
+**Week 4-6:** Not yet started
+
+### Test Account Credentials
+
+For Week 3 testing:
+- **Test account:** testbruteforce
+- **Credentials documented in:** `docs/evidence/week3/brute-force-test/TestBruteForce-creds.txt`
+- **Purpose:** Brute-force and authentication testing
+
+### Key Findings So Far
+
+**Security Strengths Identified:**
+- Strong password policy (10-char minimum + common password blocking)
+- Effective brute-force protection via rate limiting
+- Proper CSRF token implementation (observed in requests)
+
+**No Critical Vulnerabilities Found:** Both completed tests resulted in PASS ratings
+
+### Evidence Organization
+
+Week 3 evidence is organized in subdirectories:
+- `docs/evidence/week3/password-testing/` - Password strength test screenshots
+- `docs/evidence/week3/brute-force-test/` - Burp Intruder attack results and screenshots
+- `docs/evidence/week3/csrf-testing/` - (Pending) CSRF validation tests
+
+### Tools Used in Week 3
+
+- **Burp Suite Community Edition** - Intruder module for brute-force testing, Repeater for CSRF testing
+- **Portswigger Chromium Browser** - Pre-configured browser with Burp proxy
+- **Nextcloud Web UI** - Password strength testing via user creation interface
+
+### Next Steps
+
+1. Complete CSRF token validation testing
+2. Complete remaining Week 3 tests (XSS, app audit, ZAP scan)
+3. Finalize Week 2 key management recommendations
+4. Begin Week 4: File handling and container hardening
+
 ## Security Considerations
 
 ### Secrets Management
