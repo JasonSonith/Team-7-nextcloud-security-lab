@@ -1,0 +1,44 @@
+CSRF Token Validation Testing Summary
+Date: 2025-11-09
+Target: Nextcloud 29-apache at https://10.0.0.47
+Test Account: testbruteforce
+Tool: Burp Suite Community Edition - Proxy and Repeater modules
+
+Test 1: CSRF Token Identification
+- Action Performed: Changed user email in Personal Settings
+- Request Method: [FILL IN: GET/POST/PUT]
+- Request URL: [FILL IN: e.g., /ocs/v2.php/cloud/users/testbruteforce]
+- Token Location: [FILL IN: Header name or body parameter]
+- Token Format: [FILL IN: Example token value - first/last 10 chars]
+- Result: Token successfully identified
+
+Test 2: Token Removal Test
+- Modification: Removed CSRF token entirely from request
+- Response Code: [FILL IN: e.g., 403 Forbidden]
+- Response Message: [FILL IN: Error message if any]
+- Result: [PASS/FAIL] - Request was [rejected/accepted]
+
+Test 3: Token Modification Test
+- Modification: Changed [X] characters in token value
+- Original Token: [FILL IN: First 20 chars]
+- Modified Token: [FILL IN: First 20 chars with changes highlighted]
+- Response Code: [FILL IN]
+- Result: [PASS/FAIL] - Request was [rejected/accepted]
+
+Test 4: Token Reuse Test
+- First Request: Changed email to test2@example.com, captured token
+- Second Request: Changed email to test3@example.com with reused old token
+- Response Code: [FILL IN]
+- Result: [PASS/FAIL] - Reused token was [rejected/accepted]
+
+Overall Assessment:
+[FILL IN: PASS/FAIL]
+
+Security Strength:
+[FILL IN: Strong/Moderate/Weak - based on all test results]
+
+Notes:
+[FILL IN: Any additional observations, errors encountered, or interesting behaviors]
+
+Tested by: [Your Name]
+Duration: [Total time spent]

@@ -43,6 +43,8 @@ Critical data flows:
 
 ### Docker Operations
 
+**For detailed Docker startup and troubleshooting guide, see:** `infra/docker/START-UP.md`
+
 ```bash
 # Start all services
 docker compose -f infra/docker/docker-compose.yml up -d
@@ -173,6 +175,7 @@ Each test requires:
 - Threat model created (DFD + STRIDE analysis in threat-model/)
 - TLS configuration implemented (nginx reverse proxy on port 443)
 - Self-signed certificates generated for 10.0.0.47
+- Docker startup documentation created (infra/docker/STARTUP.md)
 - **PENDING:** Key management recommendations document
 
 **Week 3: 🔄 IN PROGRESS**
@@ -232,6 +235,30 @@ Week 3 evidence is organized in subdirectories:
 - **Burp Suite Community Edition** - Intruder module for brute-force testing, Repeater for CSRF testing
 - **Portswigger Chromium Browser** - Pre-configured browser with Burp proxy
 - **Nextcloud Web UI** - Password strength testing via user creation interface
+
+### Attack Platform Architecture
+
+**Current Setup (Correct):**
+- **Target Environment:** Nextcloud stack running in Docker containers (nginx proxy, Nextcloud app, MariaDB)
+  - Port 443: nginx TLS proxy → Nextcloud
+  - Port 8080: Direct HTTP access to Nextcloud
+  - Isolated with Docker bridge networking
+  - Ephemeral/resettable for destructive testing
+
+- **Attacker Platform:** Kali Linux WSL (separate WSL2 instance)
+  - Persistent environment for tools and scan history
+  - Full GUI support (Burp Suite, ZAP, browser testing)
+  - Network access to Docker containers at 10.0.0.47
+  - NOT running in Docker (correct for security testing workflow)
+
+**Why this architecture:**
+- Simulates real attack scenario (external attacker → target network)
+- Crosses trust boundaries properly (WSL → Docker network)
+- Maintains tool persistence without complex volume mounts
+- Supports GUI security tools (Burp, ZAP, browser proxying)
+- Target can be reset without losing attacker's scan history
+
+**Reference:** See `/infra/docker/STARTUP.md` for Docker operations
 
 ### Next Steps
 
@@ -339,5 +366,3 @@ For each vulnerability finding:
 - Retest results after fix
 
 All evidence files must be reproducible by teammates.
-- add this to a "start-up.md" file in the docker infra directory or in a more suitable place so i can reference how to start up docker
-- i want CLAUDE.md to remember all my progress of this project here on out. So far ive done everything from week 0-2 except for the last part in week two where i have to "Deliver key-management recommendations"
