@@ -18,10 +18,16 @@
 
 ### Test Results
 
-| Password Tested | Result (Accept/Reject) | Error Message                                         | Screenshot                                  |
-| --------------- | ---------------------- | ----------------------------------------------------- | ------------------------------------------- |
-| 123456          | REJECTED               | Password must be at least 10 characters               | password-strength-10char-minimum.png        |
-| password123     | REJECTED               | Password is among 100000 most commonly used passwords | password-strength-common-password-check.png |
+| Password Tested | Result (Accept/Reject) | Error Message                                         |
+| --------------- | ---------------------- | ----------------------------------------------------- |
+| 123456          | REJECTED               | Password must be at least 10 characters               |
+| password123     | REJECTED               | Password is among 100000 most commonly used passwords |
+
+**Evidence Screenshots:**
+
+![Common Password Check](../evidence/week3/password-testing/password-strength-common-password-check.png)
+
+*Screenshot showing "password123" being rejected due to common password database check*
 
 ### Findings
 
@@ -87,6 +93,17 @@ No action required. The current password policy demonstrates excellent security 
 **Response analysis:**
 - Requests 0-8: Status code 303 (redirect), Length ~923-925 bytes, Error: "Wrong login or password"
 - Requests 9-25: Status code 429, Length 12879 bytes (significantly larger), Error: "Too many requests"
+
+**Evidence Screenshots:**
+
+![Brute-Force Attack Results](../evidence/week3/brute-force-test/brute-force-result.png)
+
+*Burp Intruder results showing status code transition from 303 to 429 after ~9 failed attempts*
+
+![Rate Limit Error Message](../evidence/week3/brute-force-test/brute-force-error-429.png)
+
+*HTTP 429 "Too Many Requests" error displayed to user*
+
 ### Findings
 
 **Status:** PASS  (Strong Security Controls Present)
@@ -186,27 +203,45 @@ No action required. The current brute-force protection demonstrates excellent se
 
 ### Test Cases
 
-1. **Baseline - Request with valid CSRF token:**
-   - Result: ACCEPTED
-   - Response code: **200 OK**
-   - Action: Display name successfully updated
+#### Test 1: CSRF Token Identification
 
-2. **Test 2 - Request without CSRF token:**
-   - Result: REJECTED
-   - Response code: **412 Precondition Failed**
-   - Behavior: Server detected missing token and denied request
+Successfully identified the `requesttoken` header in Burp Suite containing the CSRF token.
 
-3. **Test 3 - Request with invalid CSRF token:**
-   - Modification: Changed one character in token value
-   - Result: REJECTED
-   - Response code: **412 Precondition Failed**
-   - Behavior: Server validated token integrity and denied request
+![CSRF Token Identified](../evidence/week3/csrf-testing/01-request-token-admin.png)
 
-4. **Test 4 - Request with reused CSRF token:**
-   - Action: Sent same request twice with identical token
-   - Result: ACCEPTED (both requests)
-   - Response code: **200 OK** (on second send)
-   - Behavior: Token accepted multiple times within session/time window
+#### Test 2: Baseline - Request with Valid CSRF Token
+
+- Result: ACCEPTED
+- Response code: **200 OK**
+- Action: Display name successfully updated
+
+![Baseline Request Success](../evidence/week3/csrf-testing/02-baseline-request-success.png)
+
+#### Test 3: Request Without CSRF Token
+
+- Result: REJECTED
+- Response code: **412 Precondition Failed**
+- Behavior: Server detected missing token and denied request
+
+![Token Removed - Rejected](../evidence/week3/csrf-testing/03-token-removed-rejected.png)
+
+#### Test 4: Request with Invalid CSRF Token
+
+- Modification: Changed one character in token value
+- Result: REJECTED
+- Response code: **412 Precondition Failed**
+- Behavior: Server validated token integrity and denied request
+
+![Token Modified - Rejected](../evidence/week3/csrf-testing/04-token-modified-rejected.png)
+
+#### Test 5: Request with Reused CSRF Token
+
+- Action: Sent same request twice with identical token
+- Result: ACCEPTED (both requests)
+- Response code: **200 OK** (on second send)
+- Behavior: Token accepted multiple times within session/time window
+
+![Token Reuse Test](../evidence/week3/csrf-testing/05-token-reuse-test.png)
 
 ### Findings
 
