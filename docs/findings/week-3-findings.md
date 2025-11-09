@@ -12,7 +12,9 @@
 **Objective:** Test if Nextcloud accepts weak passwords
 
 **Test Date:** 2025-11-08
-**Evidence:** `docs/evidence/week-3/password-strength-10char-minimum.png`
+**Evidence:**
+- `docs/evidence/week3/password-testing/password-strength-common-password-check.png`
+- `docs/evidence/week3/password-testing/password-length-cmmon-password-check.png.png`
 
 ### Test Results
 
@@ -50,34 +52,79 @@ No action required. The current password policy demonstrates excellent security 
 
 **Objective:** Test if Nextcloud locks accounts after failed login attempts
 
-**Test Date:** 11-8-2025
-**Tool:** Burp Suite Intruder
-**Evidence:** 
+**Test Date:** 2025-11-08
+**Tool:** Burp Suite Intruder (Community Edition)
+**Evidence:**
+- `docs/evidence/week3/brute-force-test/brute-force-result.png` - Attack results showing status code transition
+- `docs/evidence/week3/brute-force-test/brute-force-error-429.png` - Rate limit error message
+- `docs/evidence/week3/brute-force-test/brute-force-wordlist-payload.png` - Intruder payload configuration
+- `docs/evidence/week3/brute-force-test/successful-login-after-brute-force.png` - Login success after attack
+- `docs/evidence/week3/brute-force-test/TestBruteForce-creds.txt` - Test account credentials
+- `docs/evidence/week3/brute-force-test/testbruteforce-acc-creation.png` - Test account creation
 
 ### Test Configuration
 
-- Target endpoint:
-- Number of attempts: 50
-- Credentials used:
+- **Target endpoint:** `http://10.0.0.47:8080/index.php` (POST request)
+- **Number of attempts:** 25 failed login attempts
+- **Credentials used:** Username: `testbruteforce`, Passwords: 25 intentionally wrong passwords (wrongpass1-20, admin123, password, 12345678, letmein, qwerty123)
+- **Attack type:** Burp Intruder Sniper mode, targeting password parameter only
+- **Throttling:** Default Burp Community Edition throttling applied
 
 ### Test Results
 
-**Lockout triggered:** [YES / NO]
-**Lockout threshold:**
-**Lockout duration:**
-**Rate-limit headers observed:**
+**Rate limiting triggered:** YES ✅
+
+**Rate limit threshold:** ~9 failed login attempts (requests 0-8 showed status 303, requests 9-25 showed status 429)
+
+**Lockout type:** Temporary IP-based rate limiting (not permanent account lockout)
+
+**Lockout duration:** Temporary - correct password still works during rate limit period
+
+**Rate-limit headers observed:** HTTP 429 "Too Many Requests" status code
+
+**Error message:** "Too many requests - There were too many requests from your network. Retry later or contact your administrator if this is an error."
+
+**Response analysis:**
+- Requests 0-8: Status code 303 (redirect), Length ~923-925 bytes, Error: "Wrong login or password"
+- Requests 9-25: Status code 429, Length 12879 bytes (significantly larger), Error: "Too many requests"
 
 ### Findings
 
-**Status:** [PASS / FAIL]
+**Status:** PASS ✅ (Strong Security Controls Present)
 
 **Description:**
 
-**Risk Rating:** [Low / Medium / High / Critical]
+Nextcloud implements robust brute-force protection through **IP-based rate limiting**. After approximately 9 consecutive failed login attempts, the system transitions from normal authentication failure responses (HTTP 303 with "Wrong login or password") to rate limiting responses (HTTP 429 with "Too many requests").
 
-**CVSS Score:**
+**Key Security Features Observed:**
+1. **Automatic Detection**: The system automatically detects rapid repeated failed login attempts without manual intervention
+2. **Clear Error Messaging**: Users receive clear feedback about why access is denied ("Too many requests from your network")
+3. **Legitimate User Protection**: The correct password remains functional during rate limiting, preventing complete lockout of legitimate users who may have forgotten their password
+4. **Network-Level Protection**: Rate limiting appears to be IP-based, protecting against distributed attacks from a single source
+
+**Attack Mitigation:**
+This implementation effectively defeats automated brute-force attacks by:
+- Slowing down attack velocity dramatically after the threshold
+- Making password enumeration attacks impractical due to time constraints
+- Providing clear deterrent messaging to potential attackers
+- Preserving service availability for legitimate users
+
+The rate limiting approach is superior to permanent account lockout because it prevents denial-of-service attacks where attackers intentionally lock out legitimate users.
+
+**Risk Rating:** Low (No vulnerability identified - this is a positive security control)
+
+**CVSS Score:** N/A (Not a vulnerability)
 
 **Recommendation:**
+
+No action required. The current brute-force protection demonstrates excellent security practices. The rate limiting threshold of ~9 attempts is appropriate and aligns with industry best practices (OWASP recommends 5-10 attempts).
+
+**Optional enhancements to consider:**
+- Implement CAPTCHA challenge after 3-5 failed attempts (before rate limiting) to distinguish humans from bots
+- Log all rate-limited attempts for security monitoring and incident response
+- Consider implementing exponential backoff (increasing delay after each failed attempt) for more sophisticated protection
+- Add administrator notifications when rate limiting is frequently triggered from specific IPs
+- Integrate with fail2ban or similar tools for automatic IP blocking at the firewall level after repeated violations
 
 ---
 
@@ -271,12 +318,27 @@ No action required. The current password policy demonstrates excellent security 
 
 ## Evidence Index
 
-All evidence stored in: `docs/evidence/week-3/`
+All evidence stored in: `docs/evidence/week3/`
 
-- Password strength tests:
-- Brute-force tests:
-- Cookie analysis:
-- CSRF tests:
-- XSS tests:
-- App audit:
-- ZAP scan report:
+**Password strength tests:**
+- `docs/evidence/week3/password-testing/password-strength-common-password-check.png`
+- `docs/evidence/week3/password-testing/password-length-cmmon-password-check.png.png`
+
+**Brute-force tests:**
+- `docs/evidence/week3/brute-force-test/brute-force-result.png`
+- `docs/evidence/week3/brute-force-test/brute-force-error-429.png`
+- `docs/evidence/week3/brute-force-test/brute-force-wordlist-payload.png`
+- `docs/evidence/week3/brute-force-test/successful-login-after-brute-force.png`
+- `docs/evidence/week3/brute-force-test/TestBruteForce-creds.txt`
+- `docs/evidence/week3/brute-force-test/testbruteforce-acc-creation.png`
+- `docs/evidence/week3/brute-force-test/brute-force-wordlist.txt`
+
+**Cookie analysis:** (Pending)
+
+**CSRF tests:** (Pending)
+
+**XSS tests:** (Pending)
+
+**App audit:** (Pending)
+
+**ZAP scan report:** (Pending)
