@@ -208,9 +208,26 @@ Completed Tests:
    - Evidence: `docs/evidence/week3/csrf-testing/`
    - Findings documented in `docs/findings/week-3-findings.md`
 
+5. ✅ **XSS Vulnerability Testing** (PASS)
+   - Tested profile fields, filenames, and share labels
+   - All HTML tags properly encoded (no JavaScript execution)
+   - Defense-in-depth: input validation + output encoding
+   - Multiple payload types blocked (script tags, event handlers, SVG)
+   - Tool used: Firefox Developer Tools Console, Burp Suite Proxy
+   - Evidence: `docs/evidence/week3/xss-testing/`
+   - Findings documented in `docs/findings/week-3-findings.md`
+
+6. 🔄 **Nextcloud Apps Audit** (IN PROGRESS)
+   - Created automated Python script: `scripts/nextcloud_apps_audit.py`
+   - Script uses Nextcloud OCS API to inventory apps
+   - Generates CSV, JSON, and text summary reports
+   - Virtual environment set up in `scripts/venv/`
+   - Dependencies: requests, python-dotenv
+   - Evidence: Will be saved to `docs/evidence/week3/apps-audit/`
+   - Status: Script complete, ready for testing
+
 Pending Tests:
-- XSS vulnerability testing (filenames, share notes, profile fields)
-- Nextcloud apps audit
+- Complete Nextcloud apps audit (run script or manual audit)
 - OWASP ZAP baseline scan
 
 **Week 4-6:** Not yet started
@@ -229,8 +246,9 @@ For Week 3 testing:
 - Effective brute-force protection via rate limiting
 - Robust CSRF token validation (required, integrity-checked, time-based)
 - Session cookie security flags properly implemented
+- Comprehensive XSS protection via output encoding (tested profile fields, filenames, share labels)
 
-**No Critical Vulnerabilities Found:** All four completed tests resulted in PASS ratings
+**No Critical Vulnerabilities Found:** All five completed tests resulted in PASS ratings
 
 ### Evidence Organization
 
@@ -238,12 +256,15 @@ Week 3 evidence is organized in subdirectories:
 - `docs/evidence/week3/password-testing/` - Password strength test screenshots
 - `docs/evidence/week3/brute-force-test/` - Burp Intruder attack results and screenshots
 - `docs/evidence/week3/csrf-testing/` - CSRF token validation tests (5 screenshots)
+- `docs/evidence/week3/xss-testing/` - XSS vulnerability tests (5 screenshots covering profile, filename, share label attacks)
 
 ### Tools Used in Week 3
 
 - **Burp Suite Community Edition** - Intruder module for brute-force testing, Repeater for CSRF testing
 - **Portswigger Chromium Browser** - Pre-configured browser with Burp proxy
 - **Nextcloud Web UI** - Password strength testing via user creation interface
+- **Firefox Developer Tools Console** - XSS payload execution testing
+- **Python 3.13.7** - Custom automation scripts (nextcloud_apps_audit.py)
 
 ### Attack Platform Architecture
 
@@ -319,6 +340,10 @@ Parses Nmap XML or text output into CSV + heatmap.
 **Outputs:**
 - `scans/nmap-parsed.csv` — host, ip, proto, port, state, service, product, version
 - `scans/nmap-heatmap.png` — visual grid of open ports
+
+### Completed Scripts
+
+- ✅ `nextcloud_apps_audit.py` — Automated Nextcloud apps inventory via OCS API (Week 3)
 
 ### Planned Future Scripts
 

@@ -1,4 +1,29 @@
-## Current tool
+## Current tools
+
+### `nextcloud_apps_audit.py` ✨ NEW
+Automated Nextcloud apps inventory tool using the OCS API.
+
+- **Input:** Nextcloud URL + credentials (from .env or CLI)
+- **Output:**
+  - `YYYYMMDD-HHMM_apps-audit_inventory.csv` — app inventory
+  - `YYYYMMDD-HHMM_apps-audit_inventory.json` — machine-readable format
+  - `YYYYMMDD-HHMM_apps-audit_summary.txt` — human-readable summary
+
+**Quick start:**
+```bash
+cd scripts
+source venv/bin/activate
+python nextcloud_apps_audit.py \
+  --url http://10.0.0.47:8080 \
+  --env-file ../infra/docker/.env \
+  --verbose
+```
+
+**Dependencies:**
+- Python 3
+- `pip install requests python-dotenv` (already installed in venv)
+
+---
 
 ### `nmap-parser.py`
 Parses Nmap output into a tidy CSV and an optional heatmap image.
@@ -41,3 +66,9 @@ chmod +x scripts/nmap-parser.py
 - Put dynamic-test artifacts under `dynamic-testing/`.
 - Name evidence with a timestamp: `YYYYMMDD-HHMM_<area>_<step>.<ext>`
 
+## Virtual Environment
+
+A Python virtual environment is set up in `scripts/venv/` with the necessary dependencies. Activate it with:
+```bash
+source scripts/venv/bin/activate
+```
