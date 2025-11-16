@@ -399,3 +399,4 @@ For each vulnerability finding:
 - Retest results after fix
 
 All evidence files must be reproducible by teammates.
+- i completed XSS testing.

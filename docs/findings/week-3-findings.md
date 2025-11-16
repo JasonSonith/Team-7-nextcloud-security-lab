@@ -297,11 +297,10 @@ No action required. The current CSRF protection demonstrates excellent security 
 **Test Date:** 2025-11-09
 **Tool:** Firefox Developer Tools (Console), Burp Suite Proxy
 **Evidence:**
-- `docs/evidence/week3/xss-testing/01-profile-script-blocked.png` - Profile field input validation
-- `docs/evidence/week3/xss-testing/02-profile-img-tag-encoded.png` - Profile field output encoding
-- `docs/evidence/week3/xss-testing/03-filename-xss-encoded.png` - Filename XSS test results
-- `docs/evidence/week3/xss-testing/04-share-label-script-encoded.png` - Share label script tag encoding
-- `docs/evidence/week3/xss-testing/05-share-label-img-encoded.png` - Share label image tag encoding
+- `docs/evidence/week3/xss-testing/01-invalid-value.png` - Profile field input validation showing "Invalid value" error
+- `docs/evidence/week3/xss-testing/02-profile-img-tag-encoded.png` - Profile field output encoding test
+- `docs/evidence/week3/xss-testing/03-filename-xss-encoded.png` - Multiple filename XSS test results
+- `docs/evidence/week3/xss-testing/04-share-label-xss-tests.png` - Share label XSS encoding tests
 
 ### Test Methodology
 
@@ -349,8 +348,13 @@ No action required. The current CSRF protection demonstrates excellent security 
 - **Console:** No JavaScript execution detected
 - **Protection:** Output encoding converting HTML to safe text representation
 
-![Profile XSS Tests](../evidence/week3/xss-testing/01-profile-script-blocked.png)
-![Profile Output Encoding](../evidence/week3/xss-testing/02-profile-img-tag-encoded.png)
+![Profile Input Validation - Invalid Value Error](../evidence/week3/xss-testing/01-invalid-value.png)
+
+*Screenshot showing "Invalid value" error when attempting to enter `<script>alert('XSS-Test-1')</script>` in profile field*
+
+![Profile Output Encoding Test](../evidence/week3/xss-testing/02-profile-img-tag-encoded.png)
+
+*Screenshot showing XSS payload displayed as plain text after output encoding*
 
 #### Test 2: Filename XSS
 
@@ -372,7 +376,9 @@ Nextcloud uses a balanced approach:
 2. **Strict output encoding:** Escapes HTML when displaying filenames
 3. **No client-side execution:** Browser treats filenames as plain text, not HTML
 
-![Filename XSS Tests](../evidence/week3/xss-testing/03-filename-xss-encoded.png)
+![Filename XSS Tests - Multiple Payloads Encoded](../evidence/week3/xss-testing/03-filename-xss-encoded.png)
+
+*Screenshot showing multiple files with XSS payloads in filenames, all safely encoded and displayed as plain text*
 
 #### Test 3: Share Label XSS
 
@@ -392,7 +398,9 @@ Nextcloud uses a balanced approach:
 - **Display:** Same HTML entity encoding pattern
 - **Console:** No JavaScript execution
 
-![Share Label XSS Tests](../evidence/week3/xss-testing/04-share-label-script-encoded.png)
+![Share Label XSS Tests - Script and Image Tags Encoded](../evidence/week3/xss-testing/04-share-label-xss-tests.png)
+
+*Screenshot showing share labels with XSS payloads (script and img tags) properly HTML-encoded*
 
 ### Findings
 
@@ -575,7 +583,11 @@ All evidence stored in: `docs/evidence/week3/`
 - `docs/evidence/week3/csrf-testing/04-token-modified-rejected.png`
 - `docs/evidence/week3/csrf-testing/05-token-reuse-test.png`
 
-**XSS tests:** (Pending)
+**XSS tests:**
+- `docs/evidence/week3/xss-testing/01-invalid-value.png`
+- `docs/evidence/week3/xss-testing/02-profile-img-tag-encoded.png`
+- `docs/evidence/week3/xss-testing/03-filename-xss-encoded.png`
+- `docs/evidence/week3/xss-testing/04-share-label-xss-tests.png`
 
 **App audit:** (Pending)
 
