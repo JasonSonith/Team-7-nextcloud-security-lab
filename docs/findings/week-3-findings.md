@@ -469,28 +469,183 @@ No action required. The current XSS protection demonstrates excellent security p
 
 **Objective:** Identify and disable unnecessary Nextcloud apps
 
-**Test Date:**
+**Test Date:** 2025-11-09
+**Tool:** Docker exec with `php occ app:list` command
 **Evidence:**
+- `docs/evidence/week3/nextcloud-audit/01-enabled-apps.png` - Enabled apps list (part 1)
+- `docs/evidence/week3/nextcloud-audit/02-enabled-apps.png` - Enabled apps list (part 2)
+- `docs/evidence/week3/nextcloud-audit/03-disabled-apps.png` - Disabled apps list
 
-### Installed Apps
+### Installed Apps Summary
 
-| App Name | Version | Enabled | Purpose | Action Taken |
-|----------|---------|---------|---------|--------------|
-|          |         |         |         |              |
+**Total Apps Installed:** 44 apps
+**Enabled:** 31 apps
+**Disabled:** 13 apps
 
-### Apps Disabled
+### Enabled Apps (31)
 
--
+| App Name | Version | Purpose | Security Assessment |
+|----------|---------|---------|---------------------|
+| activity | 2.21.1 | Activity logging | Core functionality - Keep enabled |
+| cloud_federation_api | 1.12.0 | Federated cloud sharing API | Required for federation - Keep enabled |
+| comments | 1.19.0 | Commenting system | Core functionality - Keep enabled |
+| contactsinteraction | 1.10.0 | Contact interaction tracking | Optional - Consider disabling if unused |
+| dashboard | 7.9.0 | User dashboard | Core UI - Keep enabled |
+| dav | 1.30.1 | CalDAV/CardDAV support | Core functionality - Keep enabled |
+| federatedfilesharing | 1.19.0 | Federated file sharing | Risk: External sharing - Review policies |
+| federation | 1.19.0 | Federation support | Risk: External federation - Review policies |
+| files | 2.1.1 | File management | Core functionality - Keep enabled |
+| files_pdfviewer | 2.10.0 | PDF viewer | Convenience feature - Keep enabled |
+| files_sharing | 1.21.0 | File sharing | Core functionality - Keep enabled |
+| files_trashbin | 1.19.0 | Trash/recycle bin | Core functionality - Keep enabled |
+| files_versions | 1.22.0 | File versioning | Core functionality - Keep enabled |
+| logreader | 2.14.0 | Log viewing | Security monitoring - Keep enabled |
+| lookup_server_connector | 1.17.0 | Global address book lookup | Risk: External connections - Consider disabling |
+| notifications | 2.17.0 | Notification system | Core functionality - Keep enabled |
+| oauth2 | 1.17.1 | OAuth2 authentication | Security feature - Keep enabled |
+| password_policy | 1.19.0 | Password policy enforcement | Security feature - Keep enabled |
+| privacy | 1.13.0 | Privacy settings | Security feature - Keep enabled |
+| provisioning_api | 1.19.0 | API for user provisioning | Administrative API - Keep enabled |
+| serverinfo | 1.19.0 | Server information | Administrative tool - Keep enabled |
+| settings | 1.12.0 | Settings interface | Core functionality - Keep enabled |
+| sharebymail | 1.19.0 | Email sharing | Risk: Email-based sharing - Review policies |
+| systemtags | 1.19.0 | System tagging | Core functionality - Keep enabled |
+| text | 3.10.1 | Text editor | Core functionality - Keep enabled |
+| theming | 2.4.0 | Theme customization | UI customization - Keep enabled |
+| twofactor_backupcodes | 1.18.0 | 2FA backup codes | Security feature - Keep enabled |
+| updatenotification | 1.19.1 | Update notifications | Security feature - Keep enabled |
+| user_status | 1.9.0 | User status indicators | Core functionality - Keep enabled |
+| viewer | 2.3.0 | File viewer | Core functionality - Keep enabled |
+| workflowengine | 2.11.0 | Automated workflows | Administrative automation - Keep enabled |
+
+### Disabled Apps (13)
+
+| App Name | Version | Purpose | Status |
+|----------|---------|---------|--------|
+| admin_audit | 1.19.0 | Administrative action logging | ⚠️ RECOMMENDED TO ENABLE for security auditing |
+| bruteforcesettings | 2.9.0 | Brute-force protection settings | Already active (tested in section 2) |
+| circles | 29.0.0-dev | User circles/groups | Optional feature - Keep disabled |
+| nextcloud_announcements | 1.18.0 | Nextcloud announcements | Optional - Keep disabled |
+| photos | 2.5.0 | Photo gallery | Optional feature - Keep disabled |
+| recommendations | 2.1.0 | File recommendations | Optional feature - Keep disabled |
+| related_resources | 1.4.0 | Related resources widget | Optional feature - Keep disabled |
+| support | 1.12.0 | Support information | Optional - Keep disabled |
+| survey_client | 1.17.0 | Usage surveys | Privacy concern - Keep disabled |
+| suspicious_login | 7.0.0 | Suspicious login detection | ⚠️ RECOMMENDED TO ENABLE for security |
+| twofactor_totp | 11.0.0-dev | TOTP-based 2FA | ⚠️ RECOMMENDED TO ENABLE for MFA |
+| user_ldap | 1.20.0 | LDAP/Active Directory integration | Not needed for lab - Keep disabled |
+| weather_status | 1.9.0 | Weather widget | Optional feature - Keep disabled |
+
+**Evidence Screenshots:**
+
+![Enabled Apps - Part 1](../evidence/week3/nextcloud-audit/01-enabled-apps.png)
+
+*Screenshot showing first batch of enabled apps including activity, cloud_federation_api, comments, dashboard, dav, federation, files, and related apps*
+
+![Enabled Apps - Part 2](../evidence/week3/nextcloud-audit/02-enabled-apps.png)
+
+*Screenshot showing second batch of enabled apps including notifications, oauth2, password_policy, privacy, settings, text, theming, workflowengine*
+
+![Disabled Apps](../evidence/week3/nextcloud-audit/03-disabled-apps.png)
+
+*Screenshot showing all disabled apps including admin_audit, suspicious_login, and twofactor_totp*
 
 ### Findings
 
-**Status:** [PASS / FAIL]
+**Status:** PASS with RECOMMENDATIONS (Attack Surface Minimization)
 
 **Description:**
 
-**Risk Rating:** [Low / Medium / High / Critical]
+The Nextcloud instance has 44 total apps installed, with 31 enabled and 13 disabled. The audit reveals a well-maintained application portfolio with most security-critical apps properly configured. However, several opportunities exist to enhance security posture:
+
+**Security Strengths Identified:**
+
+1. **Password Policy Enforcement**: The `password_policy` app (1.19.0) is enabled, which explains the strong password requirements observed in Section 1 (10-character minimum + common password checking).
+
+2. **Brute-Force Protection Active**: Although `bruteforcesettings` app is shown as disabled, the brute-force protection is functioning correctly (confirmed in Section 2 testing). This indicates the protection is built into the core system.
+
+3. **Two-Factor Backup Codes**: The `twofactor_backupcodes` app (1.18.0) is enabled, providing recovery mechanisms for 2FA users.
+
+4. **OAuth2 Support**: Modern authentication framework is available through `oauth2` app (1.17.1).
+
+5. **Audit Logging**: The `logreader` app (2.14.0) is enabled for log viewing and analysis.
+
+**Security Concerns and Risks:**
+
+1. **Missing Advanced Audit Logging**: The `admin_audit` app is disabled. This app provides detailed logging of administrative actions, which is crucial for security monitoring, incident response, and compliance requirements.
+
+2. **No TOTP-Based 2FA**: The `twofactor_totp` app (11.0.0-dev) is disabled. While backup codes are available, the primary TOTP authentication method (Google Authenticator, Authy, etc.) is not enabled.
+
+3. **No Suspicious Login Detection**: The `suspicious_login` app (7.0.0) is disabled. This app uses machine learning to detect and alert on unusual login patterns, providing an additional layer of account protection.
+
+4. **Federation Risk**: Both `federation` (1.19.0) and `federatedfilesharing` (1.19.0) are enabled, allowing external Nextcloud instances to interact with this server. In a production environment, this creates an attack surface for data exfiltration and unauthorized access.
+
+5. **External Lookup Server**: The `lookup_server_connector` (1.17.0) is enabled, connecting to Nextcloud's global user directory. This creates external dependencies and potential data leakage.
+
+6. **Email-Based Sharing**: The `sharebymail` app (1.19.0) is enabled, allowing users to share files via email links. This can bypass access controls and create untracked data sharing channels.
+
+**Attack Surface Analysis:**
+
+- **Network-Facing Apps**: Federation, lookup server connector, and email sharing create external communication channels that increase attack surface.
+- **Unused Features**: Several optional apps (photos, recommendations, weather_status) are appropriately disabled, reducing unnecessary attack surface.
+- **Missing Defense-in-Depth**: The disabled security apps (admin_audit, suspicious_login, twofactor_totp) represent missed opportunities for layered security.
+
+**Risk Rating:** Medium (Security features available but not fully utilized)
+
+**CVSS Score:** N/A (This is a configuration assessment, not a vulnerability)
 
 **Recommendation:**
+
+**High Priority Actions:**
+
+1. **Enable `admin_audit` app** to log all administrative actions:
+   ```bash
+   docker exec -it <nextcloud-container> php occ app:enable admin_audit
+   ```
+   - Provides forensic trail for security incidents
+   - Required for many compliance frameworks (SOC 2, ISO 27001, HIPAA)
+   - Logs user management, permission changes, app installations, config modifications
+
+2. **Enable `twofactor_totp` app** for TOTP-based 2FA:
+   ```bash
+   docker exec -it <nextcloud-container> php occ app:enable twofactor_totp
+   ```
+   - Enforces MFA for administrative accounts
+   - Compatible with Google Authenticator, Authy, 1Password, etc.
+   - Significantly reduces risk of account compromise
+
+3. **Enable `suspicious_login` app** for anomaly detection:
+   ```bash
+   docker exec -it <nextcloud-container> php occ app:enable suspicious_login
+   ```
+   - Detects login attempts from unusual locations, devices, or times
+   - Provides early warning of compromised credentials
+   - Uses machine learning for adaptive threat detection
+
+**Medium Priority Actions:**
+
+4. **Review federation policies**: If external federation is not required, disable `federation` and `federatedfilesharing` apps to reduce attack surface.
+
+5. **Disable `lookup_server_connector`**: Unless global user discovery is needed, disable this app to prevent external connections and metadata leakage.
+
+6. **Review `sharebymail` policies**: Configure restrictions on email sharing (e.g., require passwords, set expiration dates) or disable if not needed.
+
+**Low Priority Actions:**
+
+7. **Consider disabling `contactsinteraction`**: If user contact tracking is not needed, disable to minimize data collection.
+
+8. **Regular app updates**: Ensure all apps are kept up-to-date with security patches (use `updatenotification` app alerts).
+
+9. **App permission review**: Periodically review which apps have access to user data and system resources.
+
+**Production Deployment Considerations:**
+
+For production environments, implement:
+- Mandatory 2FA for all users (especially administrators)
+- Centralized log aggregation (forward admin_audit logs to SIEM)
+- Regular security app audits (quarterly review of enabled apps)
+- Least privilege principle (disable all non-essential apps)
+- Change management process (require security review before enabling new apps)
 
 ---
 
@@ -537,23 +692,69 @@ No action required. The current XSS protection demonstrates excellent security p
 
 ### Total Findings
 
-- **Critical:**
-- **High:**
-- **Medium:**
-- **Low:**
-- **Informational:**
+- **Critical:** 0
+- **High:** 0
+- **Medium:** 1 (Apps audit - Missing security features)
+- **Low:** 5 (All tests passed - These are positive security controls)
+- **Informational:** 0
+
+### Tests Completed
+
+1. ✅ Password Strength Testing - PASS
+2. ✅ Brute-Force Protection - PASS
+3. ✅ Session Cookie Security - PASS (Delegated/Completed)
+4. ✅ CSRF Token Validation - PASS
+5. ✅ XSS Vulnerability Testing - PASS
+6. ✅ Nextcloud Apps Audit - PASS with RECOMMENDATIONS
+7. ⏳ ZAP Baseline Scan - PENDING
 
 ### Top Risks
 
-1.
-2.
-3.
+1. **Missing Security Apps** (Medium) - Critical security features like admin_audit, suspicious_login, and twofactor_totp are disabled, reducing defense-in-depth capabilities.
+2. **Federation Attack Surface** (Medium) - Enabled federation apps create external communication channels that could be exploited for data exfiltration.
+3. **External Dependencies** (Low) - lookup_server_connector and sharebymail create external connections that may leak metadata or bypass access controls.
+
+### Security Strengths Identified
+
+1. **Strong Password Policy** - 10-character minimum + common password database checking (blocks top 100,000 weak passwords)
+2. **Effective Brute-Force Protection** - Rate limiting after ~9 failed attempts with HTTP 429 responses
+3. **Robust CSRF Protection** - Required tokens with integrity validation for all state-changing requests
+4. **Comprehensive XSS Prevention** - Defense-in-depth with input validation and output encoding
+5. **Proper Cookie Security** - HttpOnly, Secure, and SameSite flags implemented
 
 ### Recommended Actions
 
-1.
-2.
-3.
+**High Priority:**
+
+1. **Enable Security Apps:**
+   - `admin_audit` for forensic logging of administrative actions
+   - `twofactor_totp` for TOTP-based 2FA (Google Authenticator, Authy)
+   - `suspicious_login` for ML-based anomaly detection
+
+2. **Review Federation Policies:**
+   - Evaluate necessity of `federation` and `federatedfilesharing` apps
+   - Disable if external federation is not required for lab environment
+
+3. **Complete ZAP Baseline Scan:**
+   - Run OWASP ZAP baseline scan to identify additional vulnerabilities
+   - Document findings and remediation recommendations
+
+**Medium Priority:**
+
+4. **Minimize External Connections:**
+   - Disable `lookup_server_connector` unless global user discovery is needed
+   - Review `sharebymail` policies and configure restrictions
+
+5. **Attack Surface Reduction:**
+   - Disable unused optional features (`contactsinteraction`)
+   - Maintain least privilege principle for app enablement
+
+**Low Priority:**
+
+6. **Ongoing Maintenance:**
+   - Regular app updates and security patching
+   - Quarterly security app audits
+   - Log monitoring and incident response planning
 
 ---
 
@@ -589,6 +790,9 @@ All evidence stored in: `docs/evidence/week3/`
 - `docs/evidence/week3/xss-testing/03-filename-xss-encoded.png`
 - `docs/evidence/week3/xss-testing/04-share-label-xss-tests.png`
 
-**App audit:** (Pending)
+**App audit:**
+- `docs/evidence/week3/nextcloud-audit/01-enabled-apps.png`
+- `docs/evidence/week3/nextcloud-audit/02-enabled-apps.png`
+- `docs/evidence/week3/nextcloud-audit/03-disabled-apps.png`
 
 **ZAP scan report:** (Pending)
