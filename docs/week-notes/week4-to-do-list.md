@@ -8,13 +8,13 @@
 
 ## 📋 Checklist Overview
 
-- [ ] **Setup:** Create evidence directories
-- [ ] **Test 1:** File Upload MIME Type Validation
+- [x] **Setup:** Create evidence directories
+- [x] **Test 1:** File Upload MIME Type Validation
 - [ ] **Test 2:** File Upload Size Limits
 - [ ] **Test 3:** Malicious File Content
-- [ ] **Test 4:** Path Traversal
-- [ ] **Test 5:** Special Characters in Filenames
-- [ ] **Test 6:** WebDAV Security
+- [x] **Test 4:** Path Traversal
+- [x] **Test 5:** Special Characters in Filenames
+- [x] **Test 6:** WebDAV Security
 - [ ] **Test 7:** Docker Container Inspection
 - [ ] **Test 8:** CIS Docker Benchmark
 - [ ] **Test 9:** Container Privilege Escalation
