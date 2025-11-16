@@ -401,3 +401,6 @@ For each vulnerability finding:
 All evidence files must be reproducible by teammates.
 - i completed XSS testing.
 - i did the nextcloud audit, check that off the things i need to
+- I did the zap baseline scan, nextcloud app audit, and zap baseline scan. Next is week 4.
+- I completed week 3, now week 4 is next
+- update week4 with this todo list and remember it
