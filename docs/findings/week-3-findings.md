@@ -147,30 +147,123 @@ No action required. The current brute-force protection demonstrates excellent se
 
 **Objective:** Verify session cookies have proper security flags
 
-**Test Date:**
+**Test Date:** 2025-11-09
+**Tool:** Firefox Developer Tools (Application > Cookies, Console)
 **Evidence:**
+- `docs/evidence/week3/session-cookie-testing/session-cookies.png` - Cookie security flags inspection
+- `docs/evidence/week3/session-cookie-testing/document.cookie.png` - JavaScript access test
 
 ### Cookie Analysis
 
-| Cookie Name | HttpOnly | Secure | SameSite | Expiration |
-|-------------|----------|--------|----------|------------|
-|             |          |        |          |            |
+Nextcloud uses multiple cookies for session management and security testing. All session cookies were analyzed using Firefox Developer Tools.
+
+| Cookie Name | HttpOnly | Secure | SameSite | Expiration | Size | Purpose |
+|-------------|----------|--------|----------|------------|------|---------|
+| **oc_sessionPassphrase** | ✅ Yes | ✅ Yes | Lax | Session | 162 bytes | Primary session authentication token |
+| **ocj5oblccreq** | ✅ Yes | ✅ Yes | Lax | Session | 44 bytes | Session identifier/request token |
+| **nc_sameSiteCookielax** | ✅ Yes | ✅ Yes | Lax | 2026-1... | 24 bytes | SameSite policy test cookie |
+| **nc_sameSiteCookiestrict** | ✅ Yes | ✅ Yes | Strict | 2026-1... | 27 bytes | SameSite policy test cookie |
+
+**Evidence Screenshot:**
+
+![Session Cookie Security Flags](../evidence/week3/session-cookie-testing/session-cookies.png)
+
+*Screenshot showing all Nextcloud session cookies with HttpOnly, Secure, and SameSite flags properly set*
 
 ### JavaScript Access Test
 
+**Test Procedure:**
+1. Opened Firefox Developer Tools Console
+2. Executed `document.cookie` command while logged into Nextcloud
+3. Verified that session cookies are not accessible via JavaScript
+
 **document.cookie test result:**
+```javascript
+> document.cookie
+''
+```
+
+**Result:** Empty string returned - **No cookies accessible via JavaScript**
+
+This confirms that all session cookies have the `HttpOnly` flag properly set, preventing client-side JavaScript from reading the cookie values. This is critical protection against XSS-based session hijacking attacks.
+
+**Evidence Screenshot:**
+
+![JavaScript Cookie Access Test](../evidence/week3/session-cookie-testing/document.cookie.png)
+
+*Screenshot showing `document.cookie` returning empty string, confirming HttpOnly protection*
 
 ### Findings
 
-**Status:** [PASS / FAIL]
+**Status:** PASS (Strong Security Controls Present)
 
 **Description:**
 
-**Risk Rating:** [Low / Medium / High / Critical]
+Nextcloud implements **comprehensive session cookie security** with all three critical security flags properly configured:
 
-**CVSS Score:**
+**1. HttpOnly Flag (✅ Enabled on all cookies)**
+- **Purpose:** Prevents JavaScript access to cookies
+- **Protection:** Mitigates XSS-based session hijacking attacks
+- **Verification:** `document.cookie` test returned empty string, confirming cookies are not accessible to client-side scripts
+- **Impact:** Even if an attacker successfully injects malicious JavaScript (XSS), they cannot steal session tokens
+
+**2. Secure Flag (✅ Enabled on all cookies)**
+- **Purpose:** Ensures cookies are only transmitted over HTTPS connections
+- **Protection:** Prevents session token interception via man-in-the-middle (MITM) attacks on unencrypted HTTP
+- **Observation:** All cookies show ✅ in the Secure column
+- **Impact:** Session cookies cannot be intercepted over insecure networks (public WiFi, compromised routers)
+
+**3. SameSite Attribute (✅ Configured appropriately)**
+- **SameSite=Lax:** Applied to primary session cookies (`oc_sessionPassphrase`, `ocj5oblccreq`)
+  - Allows cookies to be sent with top-level navigation (e.g., clicking a link)
+  - Blocks cookies on cross-site requests (POST, PUT, DELETE)
+  - Balances security with usability
+- **SameSite=Strict:** Applied to test cookies (`nc_sameSiteCookiestrict`)
+  - Most restrictive setting - cookies only sent to same-site requests
+  - Used for high-security scenarios
+- **Protection:** Mitigates Cross-Site Request Forgery (CSRF) attacks by preventing cookies from being sent in cross-origin requests
+
+**Additional Security Observations:**
+
+4. **Session Expiration:**
+   - Primary session cookies (`oc_sessionPassphrase`, `ocj5oblccreq`) are set to expire at end of browser session
+   - Reduces risk window if a user forgets to log out
+   - Test cookies have long expiration (2026) but are not used for authentication
+
+5. **Cookie Scope:**
+   - All cookies scoped to `localhost` domain with `/` path
+   - Appropriate for the test environment
+   - In production, should be scoped to specific domain
+
+**Why This Matters:**
+
+Session cookies are the most critical security component of web applications because they represent user authentication state. Without proper security flags:
+- **No HttpOnly:** XSS attacks can steal session tokens and hijack accounts
+- **No Secure:** MITM attacks can intercept sessions over unencrypted connections
+- **No SameSite:** CSRF attacks can perform unauthorized actions using the victim's session
+
+Nextcloud's implementation demonstrates **defense-in-depth** by applying all three security flags, making session hijacking significantly more difficult even if other vulnerabilities exist.
+
+**Risk Rating:** Low (No vulnerability identified - this is a positive security control)
+
+**CVSS Score:** N/A (Not a vulnerability)
 
 **Recommendation:**
+
+No action required. The current session cookie implementation demonstrates excellent security practices with all critical flags properly configured.
+
+**Best practices already implemented:**
+- ✅ HttpOnly flag prevents JavaScript access
+- ✅ Secure flag enforces HTTPS-only transmission
+- ✅ SameSite attribute provides CSRF protection
+- ✅ Session-based expiration for authentication cookies
+
+**Optional enhancements to consider:**
+- **Cookie prefixes:** Use `__Host-` or `__Secure-` cookie name prefixes for additional protection (modern browser feature)
+- **Session timeout:** Implement absolute session timeout (e.g., 8 hours) in addition to idle timeout
+- **Cookie rotation:** Rotate session tokens after privilege escalation (e.g., after changing password)
+- **Session monitoring:** Log session creation/destruction for security auditing
+- **Device fingerprinting:** Bind sessions to device characteristics to detect session hijacking attempts
 
 ---
 
@@ -775,7 +868,9 @@ All evidence stored in: `docs/evidence/week3/`
 - `docs/evidence/week3/brute-force-test/testbruteforce-acc-creation.png`
 - `docs/evidence/week3/brute-force-test/brute-force-wordlist.txt`
 
-**Cookie analysis:** (Pending)
+**Cookie analysis:**
+- `docs/evidence/week3/session-cookie-testing/session-cookies.png`
+- `docs/evidence/week3/session-cookie-testing/document.cookie.png`
 
 **CSRF tests:**
 - `docs/evidence/week3/csrf-testing/01-request-token-admin.png`
