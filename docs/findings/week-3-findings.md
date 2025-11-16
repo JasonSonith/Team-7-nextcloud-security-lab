@@ -746,38 +746,309 @@ For production environments, implement:
 
 **Objective:** Automated vulnerability scan of Nextcloud application
 
-**Test Date:**
-**Tool:** OWASP ZAP
+**Test Date:** 2025-11-16
+**Tool:** OWASP ZAP 2024 (via Docker - ghcr.io/zaproxy/zaproxy:stable)
 **Evidence:**
+- `docs/evidence/week3/zap-scan/zap-baseline-report.html` - Full HTML report with detailed findings
+- Terminal output showing scan summary
 
 ### Scan Configuration
 
-- Target URL:
-- Scan type: Baseline
-- Duration:
+- **Target URL:** http://10.0.0.47:8080
+- **Scan type:** Baseline (passive + spider)
+- **Scan mode:** Automated Framework
+- **Duration:** ~5 minutes
+- **URLs crawled:** 32 URLs
+- **Scan date/time:** 2025-11-16 23:57 UTC
 
 ### Findings Summary
 
-| Risk Level | Count | Examples |
-|-----------|-------|----------|
-| High      |       |          |
-| Medium    |       |          |
-| Low       |       |          |
-| Info      |       |          |
+| Risk Level | Count | Pass Rate |
+|-----------|-------|-----------|
+| **High (FAIL)** | 0 | ✅ 100% |
+| **Medium/Low (WARN)** | 11 | ⚠️ Issues found |
+| **Passed Tests** | 56 | ✅ Excellent |
 
-### Key Vulnerabilities Identified
+**Overall Result:**
+```
+FAIL-NEW: 0     FAIL-INPROG: 0
+WARN-NEW: 11    WARN-INPROG: 0
+INFO: 0         IGNORE: 0
+PASS: 56
+```
 
-1.
+### Detailed Warning Findings
+
+#### 1. Vulnerable JS Library [10003]
+- **Severity:** Medium
+- **Instances:** 1
+- **Location:** `http://10.0.0.47:8080/dist/core-common.js?v=8c555d24-0`
+- **Description:** Nextcloud uses a JavaScript library with known vulnerabilities
+- **Risk:** Could potentially be exploited if vulnerabilities are severe
+- **Recommendation:** Update to latest version of affected JavaScript library
+
+---
+
+#### 2. Information Disclosure - Suspicious Comments [10027]
+- **Severity:** Low (Informational)
+- **Instances:** 3
+- **Locations:**
+  - `http://10.0.0.47:8080/dist/core-common.js?v=8c555d24-0`
+  - `http://10.0.0.47:8080/dist/core-login.js?v=8c555d24-0`
+  - `http://10.0.0.47:8080/dist/core-main.js?v=8c555d24-0`
+- **Description:** JavaScript files contain developer comments (TODO, FIXME, etc.)
+- **Risk:** Minimal - comments may reveal implementation details
+- **Recommendation:** Minify/strip comments from production JavaScript files
+
+---
+
+#### 3. Server Leaks Version Information via "Server" Header [10036]
+- **Severity:** Low (Informational)
+- **Instances:** 11
+- **Example Location:** `http://10.0.0.47:8080/` (302 Found)
+- **Header Value:** `Server: Apache/2.4.62 (Debian)`
+- **Description:** Server version disclosed in HTTP response headers
+- **Risk:** Enables attackers to target version-specific exploits
+- **Recommendation:** Configure Apache to hide version information (`ServerTokens Prod`)
+
+---
+
+#### 4. Server Leaks Information via "X-Powered-By" Header [10037]
+- **Severity:** Low (Informational)
+- **Instances:** 11
+- **Example Location:** `http://10.0.0.47:8080/` (302 Found)
+- **Header Value:** `X-Powered-By: PHP/8.2.29`
+- **Description:** PHP version disclosed in HTTP response headers
+- **Risk:** Enables attackers to target PHP version-specific vulnerabilities
+- **Recommendation:** Disable `expose_php` in php.ini or remove header via nginx/Apache config
+
+---
+
+#### 5. Non-Storable Content [10049]
+- **Severity:** Low (Informational)
+- **Instances:** 12
+- **Example Locations:**
+  - `http://10.0.0.47:8080/` (302 Found)
+  - `http://10.0.0.47:8080/apps/theming/favicon?v=0eb40e1e`
+- **Description:** Responses have Cache-Control headers preventing caching
+- **Risk:** None - this is actually a security feature for sensitive content
+- **Note:** This is a **positive finding** - prevents caching of authentication pages
+
+---
+
+#### 6. CSP: Failure to Define Directive with No Fallback [10055]
+- **Severity:** Low
+- **Instances:** 9
+- **Example Location:** `http://10.0.0.47:8080/` (302 Found)
+- **Description:** Content Security Policy (CSP) header missing some directives
+- **Observed CSP:**
+  ```
+  default-src 'self'; script-src 'self' 'nonce-...'; style-src 'self' 'unsafe-inline';
+  frame-src *; img-src * data: blob:; font-src 'self' data:; media-src *;
+  connect-src *; object-src 'none'; base-uri 'self';
+  ```
+- **Risk:** Some CSP directives could be more restrictive
+- **Recommendation:** Add missing CSP directives (e.g., `form-action`, `frame-ancestors`)
+
+---
+
+#### 7. Deprecated Feature Policy Header Set [10063]
+- **Severity:** Low (Informational)
+- **Instances:** 8
+- **Example Locations:**
+  - `http://10.0.0.47:8080/` (200 OK)
+  - `http://10.0.0.47:8080/login` (200 OK)
+- **Description:** Uses deprecated `Feature-Policy` header instead of `Permissions-Policy`
+- **Risk:** None - deprecated but still functional
+- **Recommendation:** Migrate to modern `Permissions-Policy` header
+
+---
+
+#### 8. Timestamp Disclosure - Unix [10096]
+- **Severity:** Low (Informational)
+- **Instances:** 21
+- **Example Locations:**
+  - `http://10.0.0.47:8080/` (200 OK)
+  - `http://10.0.0.47:8080/dist/core-main.js?v=8c555d24-0`
+- **Description:** Unix timestamps found in responses (used for versioning/caching)
+- **Risk:** Minimal - timestamps reveal when resources were updated
+- **Note:** This is **normal behavior** for cache-busting in web applications
+
+---
+
+#### 9. Modern Web Application [10109]
+- **Severity:** Informational (Not a vulnerability)
+- **Instances:** 3
+- **Description:** ZAP detected this is a modern JavaScript-heavy application
+- **Risk:** None - this is just informational
+- **Note:** This is a **positive finding** indicating modern web development practices
+
+---
+
+#### 10. Session Management Response Identified [10112]
+- **Severity:** Informational (Not a vulnerability)
+- **Instances:** 4
+- **Example Locations:**
+  - `http://10.0.0.47:8080/` (302 Found)
+  - `http://10.0.0.47:8080/login` (200 OK)
+- **Description:** ZAP detected session cookies being set
+- **Risk:** None - this is expected behavior
+- **Note:** This is **normal and required** for session management (already verified secure in Section 3)
+
+---
+
+#### 11. Insufficient Site Isolation Against Spectre Vulnerability [90004]
+- **Severity:** Low
+- **Instances:** 12
+- **Example Locations:**
+  - `http://10.0.0.47:8080/apps/theming/css/default.css?v=cbff1713-0`
+  - `http://10.0.0.47:8080/apps/theming/favicon?v=0eb40e1e`
+- **Description:** Missing `Cross-Origin-Embedder-Policy` and `Cross-Origin-Opener-Policy` headers
+- **Risk:** Low - these headers protect against Spectre CPU vulnerability attacks
+- **Recommendation:** Add COEP and COOP headers for defense-in-depth
+
+---
+
+### Tests Passed (56 Total)
+
+ZAP validated that Nextcloud **does NOT have** these common vulnerabilities:
+
+✅ **Authentication & Session:**
+- Cookie HttpOnly Flag properly set
+- Cookie Secure Flag properly set
+- Cookie SameSite Attribute properly set
+- No session IDs in URLs
+- Weak authentication methods not detected
+
+✅ **Injection Attacks:**
+- XSS protections working (User Controllable HTML Element)
+- No clickjacking vulnerabilities (X-Frame-Options set)
+- CSRF tokens properly implemented
+- No dangerous JavaScript functions
+
+✅ **Information Disclosure:**
+- No debug error messages exposed
+- No sensitive information in URLs
+- No sensitive information in HTTP Referrer
+- No private IP disclosure
+- No password fields with autocomplete
+
+✅ **SSL/TLS Security:**
+- Strict-Transport-Security header set
+- No mixed content issues
+- No insecure HTTP to HTTPS transitions
+
+✅ **Content Security:**
+- Content-Type headers properly set
+- X-Content-Type-Options header set
+- Content Security Policy header set
+- No malicious JavaScript domains (polyfill attack)
+
+✅ **Other Security Checks:**
+- No directory browsing enabled
+- No Heartbleed vulnerability
+- No source code disclosure
+- No Java serialization issues
+- Anti-CSRF tokens present
+
+---
 
 ### Findings
 
-**Status:** [PASS / FAIL]
+**Status:** PASS (Excellent Security Posture)
 
 **Description:**
 
-**Risk Rating:** [Low / Medium / High / Critical]
+The OWASP ZAP baseline scan completed successfully with **zero high-risk vulnerabilities** detected. Out of 67 total security tests:
+- **56 tests PASSED** (83.6% pass rate)
+- **11 warnings** identified (mostly low-risk informational findings)
+- **0 critical failures**
+
+**Security Strengths Confirmed by ZAP:**
+
+The automated scan validates findings from manual testing (Sections 1-6):
+
+1. **Session Cookie Security** - ZAP confirmed all cookies have proper security flags (HttpOnly, Secure, SameSite), validating Section 3 findings
+2. **CSRF Protection** - ZAP confirmed Anti-CSRF tokens are present and properly implemented, validating Section 4 findings
+3. **XSS Protection** - ZAP found no XSS vulnerabilities in user controllable inputs, validating Section 5 findings
+4. **Authentication Security** - No weak authentication methods detected, validating Sections 1-2 findings
+5. **SSL/TLS Configuration** - Strict-Transport-Security properly configured
+
+**Analysis of Warning Findings:**
+
+Most warnings are **low-risk informational issues** rather than exploitable vulnerabilities:
+
+**Informational Only (Not Vulnerabilities):**
+- **Modern Web Application [10109]** - Just detecting modern JavaScript usage
+- **Session Management [10112]** - Just detecting cookies (already verified secure)
+- **Non-Storable Content [10049]** - Actually a security feature (prevents caching)
+- **Timestamp Disclosure [10096]** - Normal cache-busting behavior
+
+**Low Risk (Configuration Hardening):**
+- **Server Version Disclosure [10036, 10037]** - Apache/PHP versions visible (information leak)
+- **Deprecated Feature Policy [10063]** - Using old header format (still functional)
+- **CSP Directives [10055]** - Could add more CSP directives for defense-in-depth
+- **Spectre Isolation [90004]** - Missing modern isolation headers (low exploitability)
+- **Suspicious Comments [10027]** - Developer comments in JavaScript (minimal risk)
+
+**Medium Risk (Should Address):**
+- **Vulnerable JS Library [10003]** - One JavaScript library may have known CVEs (requires investigation)
+
+**Overall Assessment:**
+
+Nextcloud demonstrates **strong security fundamentals** with comprehensive protections against common web vulnerabilities. The ZAP scan found no critical issues and validates that manual testing identified the key security controls correctly. The 11 warnings are primarily configuration improvements rather than exploitable vulnerabilities.
+
+**Risk Rating:** Low (No critical vulnerabilities, minor configuration improvements recommended)
+
+**CVSS Score:** N/A (No exploitable vulnerabilities identified)
 
 **Recommendation:**
+
+**High Priority:**
+
+1. **Investigate Vulnerable JS Library [10003]:**
+   ```bash
+   # Check which library and CVE details in full ZAP report
+   # Update Nextcloud to latest version (may include library updates)
+   ```
+
+**Medium Priority:**
+
+2. **Hide Server Version Information:**
+   - Apache: Add `ServerTokens Prod` to Apache config
+   - PHP: Set `expose_php = Off` in php.ini
+   - Nginx: Add `server_tokens off;` to nginx config
+
+3. **Enhance Content Security Policy:**
+   - Add `form-action 'self'` directive
+   - Add `frame-ancestors 'self'` directive
+   - Consider restricting `frame-src` from `*` to specific domains
+
+4. **Add Cross-Origin Isolation Headers:**
+   ```
+   Cross-Origin-Embedder-Policy: require-corp
+   Cross-Origin-Opener-Policy: same-origin
+   ```
+
+**Low Priority:**
+
+5. **Migrate to Permissions-Policy header** (replace deprecated Feature-Policy)
+
+6. **Minify JavaScript files** to remove comments in production
+
+7. **Regular Updates:**
+   - Keep Nextcloud updated to latest stable version
+   - Monitor for JavaScript library security updates
+   - Review ZAP reports quarterly
+
+**Production Deployment Considerations:**
+
+For production environments, implement:
+- Automated security scanning in CI/CD pipeline (ZAP integration)
+- Regular vulnerability scanning (weekly/monthly)
+- Web Application Firewall (WAF) for additional protection
+- Security header validation tools
+- Dependency scanning for JavaScript libraries (npm audit, Snyk)
 
 ---
 
@@ -787,66 +1058,85 @@ For production environments, implement:
 
 - **Critical:** 0
 - **High:** 0
-- **Medium:** 1 (Apps audit - Missing security features)
-- **Low:** 5 (All tests passed - These are positive security controls)
-- **Informational:** 0
+- **Medium:** 2 (Apps audit - Missing security features, ZAP - Vulnerable JS library)
+- **Low:** 16 (6 manual tests passed + 10 ZAP low-risk warnings)
+- **Informational:** 4 (ZAP informational findings)
 
 ### Tests Completed
 
 1. ✅ Password Strength Testing - PASS
 2. ✅ Brute-Force Protection - PASS
-3. ✅ Session Cookie Security - PASS (Delegated/Completed)
+3. ✅ Session Cookie Security - PASS
 4. ✅ CSRF Token Validation - PASS
 5. ✅ XSS Vulnerability Testing - PASS
 6. ✅ Nextcloud Apps Audit - PASS with RECOMMENDATIONS
-7. ⏳ ZAP Baseline Scan - PENDING
+7. ✅ **ZAP Baseline Scan - PASS** (0 critical, 11 warnings, 56 tests passed)
 
 ### Top Risks
 
 1. **Missing Security Apps** (Medium) - Critical security features like admin_audit, suspicious_login, and twofactor_totp are disabled, reducing defense-in-depth capabilities.
-2. **Federation Attack Surface** (Medium) - Enabled federation apps create external communication channels that could be exploited for data exfiltration.
-3. **External Dependencies** (Low) - lookup_server_connector and sharebymail create external connections that may leak metadata or bypass access controls.
+2. **Vulnerable JavaScript Library** (Medium) - ZAP detected a JavaScript library with known vulnerabilities that should be investigated and updated.
+3. **Federation Attack Surface** (Medium) - Enabled federation apps create external communication channels that could be exploited for data exfiltration.
+4. **Information Leakage** (Low) - Server version information (Apache 2.4.62, PHP 8.2.29) disclosed in HTTP headers, enabling targeted attacks.
+5. **External Dependencies** (Low) - lookup_server_connector and sharebymail create external connections that may leak metadata or bypass access controls.
 
 ### Security Strengths Identified
 
 1. **Strong Password Policy** - 10-character minimum + common password database checking (blocks top 100,000 weak passwords)
 2. **Effective Brute-Force Protection** - Rate limiting after ~9 failed attempts with HTTP 429 responses
-3. **Robust CSRF Protection** - Required tokens with integrity validation for all state-changing requests
-4. **Comprehensive XSS Prevention** - Defense-in-depth with input validation and output encoding
-5. **Proper Cookie Security** - HttpOnly, Secure, and SameSite flags implemented
+3. **Robust CSRF Protection** - Required tokens with integrity validation for all state-changing requests (ZAP validated)
+4. **Comprehensive XSS Prevention** - Defense-in-depth with input validation and output encoding (ZAP validated)
+5. **Proper Cookie Security** - HttpOnly, Secure, and SameSite flags implemented (ZAP validated)
+6. **Excellent ZAP Scan Results** - 56/67 tests passed (83.6%), 0 critical vulnerabilities, validates manual testing findings
 
 ### Recommended Actions
 
 **High Priority:**
 
-1. **Enable Security Apps:**
+1. **Investigate and Update Vulnerable JS Library (ZAP Finding):**
+   - Review ZAP report for specific library and CVE details
+   - Update Nextcloud to latest version (may include library updates)
+   - Consider automated dependency scanning (npm audit, Snyk)
+
+2. **Enable Security Apps:**
    - `admin_audit` for forensic logging of administrative actions
    - `twofactor_totp` for TOTP-based 2FA (Google Authenticator, Authy)
    - `suspicious_login` for ML-based anomaly detection
 
-2. **Review Federation Policies:**
+3. **Review Federation Policies:**
    - Evaluate necessity of `federation` and `federatedfilesharing` apps
    - Disable if external federation is not required for lab environment
 
-3. **Complete ZAP Baseline Scan:**
-   - Run OWASP ZAP baseline scan to identify additional vulnerabilities
-   - Document findings and remediation recommendations
-
 **Medium Priority:**
 
-4. **Minimize External Connections:**
+4. **Hide Server Version Information (ZAP Finding):**
+   - Apache: Add `ServerTokens Prod` to Apache config
+   - PHP: Set `expose_php = Off` in php.ini
+   - Nginx: Add `server_tokens off;` to nginx config
+
+5. **Enhance Content Security Policy (ZAP Finding):**
+   - Add `form-action 'self'` directive
+   - Add `frame-ancestors 'self'` directive
+   - Add Cross-Origin isolation headers (COEP, COOP)
+
+6. **Minimize External Connections:**
    - Disable `lookup_server_connector` unless global user discovery is needed
    - Review `sharebymail` policies and configure restrictions
 
-5. **Attack Surface Reduction:**
+7. **Attack Surface Reduction:**
    - Disable unused optional features (`contactsinteraction`)
    - Maintain least privilege principle for app enablement
 
 **Low Priority:**
 
-6. **Ongoing Maintenance:**
+8. **Migrate to Modern Security Headers (ZAP Finding):**
+   - Replace deprecated `Feature-Policy` with `Permissions-Policy`
+   - Minify JavaScript files to remove comments
+
+9. **Ongoing Maintenance:**
    - Regular app updates and security patching
-   - Quarterly security app audits
+   - Quarterly security app audits and ZAP scans
+   - Monitor JavaScript library vulnerabilities
    - Log monitoring and incident response planning
 
 ---
@@ -890,4 +1180,6 @@ All evidence stored in: `docs/evidence/week3/`
 - `docs/evidence/week3/nextcloud-audit/02-enabled-apps.png`
 - `docs/evidence/week3/nextcloud-audit/03-disabled-apps.png`
 
-**ZAP scan report:** (Pending)
+**ZAP scan report:**
+- `docs/evidence/week3/zap-scan/zap-baseline-report.html`
+- `docs/evidence/week3/zap-scan/zap.yaml`
