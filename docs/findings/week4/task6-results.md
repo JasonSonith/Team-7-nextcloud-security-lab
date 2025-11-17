@@ -44,7 +44,7 @@ curl -X PROPFIND http://localhost:8080/remote.php/dav/files/admin/
 
 ## Test 2 — Authenticated PROPFIND
 ```
-curl -u 'admin:Jiggnvaldez17$' -X PROPFIND http://localhost:8080/remote.php/dav/files/admin/
+curl -u 'admin:password$' -X PROPFIND http://localhost:8080/remote.php/dav/files/admin/
 ```
 **Result:** Credentials rejected → No access  
 ✔ PASS – Authentication enforced
@@ -53,7 +53,7 @@ curl -u 'admin:Jiggnvaldez17$' -X PROPFIND http://localhost:8080/remote.php/dav/
 
 ## Test 3 — Upload Attempt
 ```
-curl -u 'admin:Jiggnvaldez17$' -T webdav-test.txt http://localhost:8080/remote.php/dav/files/admin/webdav-test.txt
+curl -u 'admin:password$' -T webdav-test.txt http://localhost:8080/remote.php/dav/files/admin/webdav-test.txt
 ```
 **Result:** NotAuthenticated  
 ✔ PASS – Upload blocked
@@ -62,7 +62,7 @@ curl -u 'admin:Jiggnvaldez17$' -T webdav-test.txt http://localhost:8080/remote.p
 
 ## Test 4 — Delete Attempt
 ```
-curl -u 'admin:Jiggnvaldez17$' -X DELETE http://localhost:8080/remote.php/dav/files/admin/webdav-test.txt
+curl -u 'admin:password$' -X DELETE http://localhost:8080/remote.php/dav/files/admin/webdav-test.txt
 ```
 **Result:** NotAuthenticated  
 ✔ PASS – Delete blocked
@@ -71,7 +71,7 @@ curl -u 'admin:Jiggnvaldez17$' -X DELETE http://localhost:8080/remote.php/dav/fi
 
 ## Test 5 — Cross-User Access
 ```
-curl -u 'admin:Jiggnvaldez17$' -X PROPFIND http://localhost:8080/remote.php/dav/files/testbruteforce/
+curl -u 'admin:password$' -X PROPFIND http://localhost:8080/remote.php/dav/files/testbruteforce/
 ```
 **Result:** Access denied  
 ✔ PASS – No cross-user access
