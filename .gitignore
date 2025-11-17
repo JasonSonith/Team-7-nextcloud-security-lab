@@ -209,3 +209,8 @@ __marimo__/
 # Windows Zone.Identifier files (alternate data streams)
 # These are Windows metadata files that track file origins and should not be committed
 *:Zone.Identifier
+fake-image.jpg
+test.php
+test.php.jpg
+test.html
+eicar-test.txt
