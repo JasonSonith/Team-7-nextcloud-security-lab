@@ -1,9 +1,6 @@
 # Git Merge Workflow Guide
 
-A step-by-step guide for merging branches in Git, based on merging GiaGia's Week 4 work into main.
-
-## What Happened - The GiaGia Merge Case Study
-
+A step-by-step guide for merging branches in Git
 ### 1. **Assessed the Situation**
 ```bash
 git status                    # Found: rebase in progress with conflicts
