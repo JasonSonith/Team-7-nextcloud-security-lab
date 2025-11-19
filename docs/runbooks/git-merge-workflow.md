@@ -1,55 +1,5 @@
 # Git Merge Workflow Guide
 
-A step-by-step guide for merging branches in Git
-### 1. **Assessed the Situation**
-```bash
-git status                    # Found: rebase in progress with conflicts
-git branch -a                 # Listed all branches (local + remote)
-```
-
-**Found:** There was a rebase in progress that was stuck with conflicts.
-
-### 2. **Cleaned Up the Stuck Rebase**
-```bash
-git rebase --abort           # Abort the failed rebase to get clean state
-```
-
-**Why:** You can't merge while a rebase is in progress. Always clean up first.
-
-### 3. **Switched to Target Branch**
-```bash
-git checkout main            # Switch to the branch you want to merge INTO
-```
-
-**Important:** Always merge FROM another branch INTO your current branch.
-
-### 4. **Investigated What to Merge**
-```bash
-git log --oneline --graph --decorate --all -20    # See branch history
-git fetch origin                                   # Get latest from remote
-```
-
-**Found:** The work was on `origin/GiaGia` (remote branch), not local `GiaGia` branch.
-
-### 5. **Performed the Merge**
-```bash
-git merge origin/GiaGia --no-edit
-```
-
-**This command:**
-- Merges `origin/GiaGia` branch into current branch (`main`)
-- `--no-edit` uses the default merge commit message
-- Git automatically handled the merge (no conflicts!)
-
-### 6. **Pushed to Remote**
-```bash
-git push origin main
-```
-
----
-
-## General Merge Workflow
-
 Here's the standard process for merging any branch:
 
 ```bash
