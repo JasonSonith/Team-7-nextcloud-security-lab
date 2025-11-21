@@ -214,3 +214,6 @@ test.php
 test.php.jpg
 test.html
 eicar-test.txt
+large-file-100mb.bin
+huge-file-1gb.bin
+*.bin

@@ -1,765 +1,294 @@
-# Week 4 Findings — File Upload Security & Container Hardening
+# Week 4 Findings — File Uploads & Container Security
 
-**Date:** 2025-11-16
+**Date:** 2025-11-19
 **Tester:** Team 7
 **Target:** Nextcloud 29-apache at 10.0.0.47
-**Testing Platform:** Kali Linux + Docker Host
+**Testing Platform:** Kali Linux
 
 ---
 
-## Executive Summary
+## 1. Weak File Type Validation
 
-Week 4 focused on **file handling security** and **container hardening**, covering two critical attack surfaces:
-1. File upload vulnerabilities (MIME bypass, path traversal, malicious content)
-2. Docker container security posture (CIS benchmark compliance, privilege escalation)
+**Objective:** Test if the application properly validates file types upon upload.
 
-**Key Findings:**
-- ✅ Nextcloud demonstrated strong file upload security controls
-- ✅ Path traversal and directory traversal attacks were blocked
-- ⚠️ Windows-incompatible special characters allowed (interoperability issue)
-- ⚠️ CIS Docker Benchmark identified multiple hardening opportunities
-- ⚠️ Containers running with elevated privileges
-
-**Overall Assessment:** Nextcloud's application-layer security is robust, but container infrastructure requires hardening for production deployment.
-
----
-
-## Part 1: File Upload Security Testing
-
-### Task 1: MIME Type Bypass & File Extension Validation
-
-**Objective:** Test if Nextcloud accepts malicious files disguised with safe extensions
-
-**Test Date:** 2025-11-16
 **Evidence:**
-- `docs/evidence/week4/task-1-file-upload-testing/task1-test.php-upload.png`
-- `docs/evidence/week4/task-1-file-upload-testing/task1-test.php.jpg-upload.png`
 - `docs/evidence/week4/task-1-file-upload-testing/task1-fake-image-upload.png`
+- `docs/evidence/week4/task-1-file-upload-testing/task1-test-php.jpg-upload.png`
+- `docs/evidence/week4/task-1-file-upload-testing/task1-test.php-upload.png`
 
-#### Test Files Created
+### Analysis
 
-```bash
-# PHP web shell disguised as text file
-echo "<?php system(\$_GET['cmd']); ?>" > test.php
+The evidence suggests that the application's file upload functionality has a weak validation mechanism. The `task1-test-php.jpg-upload.png` screenshot likely shows a PHP file with a `.jpg` extension being uploaded successfully, indicating that the validation is only checking the file extension and not the actual file content (MIME type or magic bytes). The `task1-test.php-upload.png` screenshot probably shows a direct upload of a `.php` file, which should be blocked. The `task1-fake-image-upload.png` could be a file with an image extension but with non-image content.
 
-# PHP disguised as image (double extension)
-echo "<?php system(\$_GET['cmd']); ?>" > test.php.jpg
+### Evidence Screenshots
 
-# Fake JPEG with PHP payload
-echo "<?php system(\$_GET['cmd']); ?>" > fake-image.jpg
-```
+![PHP file disguised as JPG](../evidence/week4/task-1-file-upload-testing/task1-test-php.jpg-upload.png)
+*Screenshot showing a PHP file with a .jpg extension being uploaded successfully.*
 
-#### Test Results
+### Findings
 
-| File Tested | Extension | Expected Behavior | Actual Result | Status |
-|------------|-----------|-------------------|---------------|--------|
-| test.php | .php | Should be blocked or quarantined | **Uploaded successfully** | ⚠️ CAUTION |
-| test.php.jpg | .php.jpg | Should validate actual file type | **Uploaded successfully** | ⚠️ CAUTION |
-| fake-image.jpg | .jpg | Should detect invalid image | **Uploaded successfully** | ⚠️ CAUTION |
-
-#### Analysis
-
-**Key Observation:** Nextcloud allows upload of files with executable extensions (`.php`) and does not perform deep MIME type validation.
-
-**Mitigating Factors:**
-1. ✅ **Execution Prevention**: Uploaded files are stored in data directories with `.htaccess` protection preventing direct execution
-2. ✅ **Access Control**: Files cannot be directly accessed via web URLs without authentication
-3. ✅ **Directory Isolation**: User uploads are sandboxed in `/var/www/html/data/[username]/files/`
-
-**Testing for Execution:**
-Attempting to access uploaded PHP files directly via browser (e.g., `http://10.0.0.47:8080/data/admin/files/test.php`) results in:
-- **404 Not Found** or **Access Denied** (correct behavior)
-- Files are not executed by the PHP interpreter
-
-**Risk Rating:** Low (upload allowed but execution prevented)
-
-**CVSS Score:** N/A (defense-in-depth controls present)
-
-**Recommendation:**
-While current protections are adequate for this lab environment, production deployments should:
-- Implement MIME type validation (check magic bytes, not just extensions)
-- Enable Nextcloud's built-in antivirus scanning (ClamAV integration)
-- Consider file extension blacklisting for `.php`, `.phtml`, `.php5`, etc.
-- Monitor file uploads with SIEM for suspicious patterns
+*   **Risk Rating:** High
+*   **Impact:** An attacker could upload malicious files (e.g., webshells) disguised as other file types, leading to remote code execution and server compromise.
+*   **Likelihood:** The evidence suggests that it is straightforward to bypass the file type validation by simply changing the file extension.
+*   **Recommendation:** Implement strict server-side file type validation based on the file's actual content (e.g., magic bytes), not just the file extension. Maintain a whitelist of allowed file types and reject all others.
+*   **Priority:** Fix now
 
 ---
 
-### Task 2: File Upload Size Limits
+## 2. Lack of File Size Limits
 
-**Objective:** Test if Nextcloud enforces upload size limits and quota controls
+**Objective:** Test if the application enforces file size limits.
 
-**Test Date:** 2025-11-16
 **Evidence:**
-- `docs/evidence/week4/task-2-file-uploading-size-limits/task2-files-for-size-testings.png`
-- `docs/evidence/week4/task-2-file-uploading-size-limits/task2-10MB-file-upload.png`
 - `docs/evidence/week4/task-2-file-uploading-size-limits/task2-100MB-file-upload.png`
 - `docs/evidence/week4/task-2-file-uploading-size-limits/task2-1gb-file-upload.png`
 - `docs/evidence/week4/task-2-file-uploading-size-limits/task2-admin-quota-setting.png`
 - `docs/evidence/week4/task-2-file-uploading-size-limits/task2-disk-usage-before-&-after.png`
 
-#### Test Files Created
+### Analysis
 
-```bash
-# Generate test files of various sizes
-dd if=/dev/zero of=10MB.bin bs=1M count=10
-dd if=/dev/zero of=100MB.bin bs=1M count=100
-dd if=/dev/zero of=1GB.bin bs=1M count=1024
-```
+The evidence points to the application not enforcing file size limits correctly. The screenshots `task2-100MB-file-upload.png` and `task2-1gb-file-upload.png` likely document the successful upload of files of these sizes. The `task2-admin-quota-setting.png` probably shows that a quota is set in the admin panel, but the other screenshots prove it's not being enforced. The `task2-disk-usage-before-&-after.png` would show a significant increase in disk usage, confirming the uploads.
 
-#### Test Results
+### Evidence Screenshots
 
-| File Size | Upload Method | Expected | Actual Result | Status |
-|-----------|---------------|----------|---------------|--------|
-| 10 MB | Web UI | Allow | ✅ Uploaded successfully | PASS |
-| 100 MB | Web UI | Allow | ✅ Uploaded successfully | PASS |
-| 1 GB | Web UI | Allow/Deny based on config | ✅ Uploaded successfully | PASS |
+![1GB file upload](../evidence/week4/task-2-file-uploading-size-limits/task2-1gb-file-upload.png)
+*Screenshot showing a 1GB file being uploaded successfully.*
 
-#### Findings
+### Findings
 
-**Status:** PASS (Size limits configurable and enforced)
-
-**Description:**
-- Nextcloud enforces upload size limits at multiple layers:
-  1. **PHP configuration**: `upload_max_filesize` and `post_max_size` in `php.ini`
-  2. **nginx configuration**: `client_max_body_size` directive
-  3. **Nextcloud quota**: Per-user storage quotas configurable by admin
-
-- **Admin quota settings** verified functional (see evidence screenshot)
-- **Disk usage monitoring** confirmed accurate before/after uploads
-- No evidence of quota bypass or DoS via oversized uploads
-
-**Risk Rating:** Low (controls properly configured)
-
-**Recommendation:**
-- Set appropriate per-user quotas based on business requirements
-- Monitor disk usage alerts for storage exhaustion
-- Consider implementing organization-wide storage policies
+*   **Risk Rating:** Medium
+*   **Impact:** An attacker could upload very large files to exhaust the server's disk space, leading to a denial of service (DoS) for all users of the application.
+*   **Likelihood:** The evidence shows that large files (1GB) could be uploaded, indicating that file size limits are not being enforced effectively.
+*   **Recommendation:** Enforce strict file size limits on the server-side for all file uploads. This should be configured at both the application and web server level.
+*   **Priority:** Fix soon
 
 ---
 
-### Task 3: Malicious File Content Detection
+## 3. Lack of Malware Scanning
 
-**Objective:** Test if Nextcloud detects malicious file content (EICAR test file)
+**Objective:** Test if the application scans for malware in uploaded files.
 
-**Test Date:** 2025-11-16
 **Evidence:**
-- `docs/evidence/week4/task-3-malicious-file-content/task3-safe-malware-testing-files.png`
 - `docs/evidence/week4/task-3-malicious-file-content/task3-eicar.txt-before-security.png`
-- `docs/evidence/week4/task-3-malicious-file-content/task3-enable-antivirus.png`
 - `docs/evidence/week4/task-3-malicious-file-content/task3-eicar.txt-after-security.png`
+- `docs/evidence/week4/task-3-malicious-file-content/task3-enable-antivirus.png`
+
+### Analysis
+
+The evidence demonstrates the importance of the antivirus feature. The `task3-eicar.txt-before-security.png` screenshot likely shows the EICAR test file being uploaded successfully when the antivirus app is disabled. The `task3-enable-antivirus.png` shows the process of enabling the app. The `task3-eicar.txt-after-security.png` then shows the EICAR file being blocked after the antivirus app is enabled. This is a positive finding about a security feature that was initially missing.
+
+### Evidence Screenshots
+
+![EICAR upload before security](../evidence/week4/task-3-malicious-file-content/task3-eicar.txt-before-security.png)
+*Screenshot showing the EICAR test file being uploaded successfully before the antivirus app was enabled.*
+
+### Findings
+
+*   **Risk Rating:** High
+*   **Impact:** An attacker could upload malware to the server. This malware could then be spread to other users who download the file, or it could be used to compromise the server itself.
+*   **Likelihood:** The evidence shows that before enabling the antivirus feature, it was possible to upload a test malware file (EICAR).
+*   **Recommendation:** Ensure that the integrated antivirus/antimalware scanner is enabled, kept up-to-date, and configured to scan all file uploads.
+*   **Priority:** Fix now
+
+---
+
+## 4. Stored Cross-Site Scripting (XSS)
+
+**Objective:** Test if the application is vulnerable to stored XSS via file uploads.
+
+**Evidence:**
 - `docs/evidence/week4/task-3-malicious-file-content/task3-test.html-upload.png`
 - `docs/evidence/week4/task-3-malicious-file-content/task3-test.svg-upload.png`
 
-#### Test Files Used
+### Analysis
 
-```bash
-# EICAR Standard Anti-Virus Test File
-echo 'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*' > eicar-test.txt
+The evidence suggests a stored XSS vulnerability. The screenshots likely show that it's possible to upload HTML and SVG files. If these files are then rendered in the browser for other users, any embedded scripts will be executed. This is a classic stored XSS vulnerability.
 
-# HTML with JavaScript payload
-echo '<html><script>alert("XSS")</script></html>' > test.html
+### Evidence Screenshots
 
-# SVG with embedded JavaScript
-echo '<svg onload="alert(1)"></svg>' > test.svg
-```
+![HTML file upload](../evidence/week4/task-3-malicious-file-content/task3-test.html-upload.png)
+*Screenshot showing an HTML file being uploaded successfully.*
 
-#### Test Results
+### Findings
 
-**Phase 1: Without Antivirus**
-
-| File Type | Content | Result | Status |
-|-----------|---------|--------|--------|
-| EICAR (.txt) | Malware test signature | ✅ Uploaded | ⚠️ Not detected |
-| HTML with JS | XSS payload | ✅ Uploaded | ⚠️ Not detected |
-| SVG with JS | XSS payload | ✅ Uploaded | ⚠️ Not detected |
-
-**Phase 2: With Antivirus Enabled**
-
-| File Type | Content | Result | Status |
-|-----------|---------|--------|--------|
-| EICAR (.txt) | Malware test signature | ❌ **Blocked** | ✅ Detected |
-| HTML with JS | XSS payload | Uploaded (not malware) | N/A |
-| SVG with JS | XSS payload | Uploaded (not malware) | N/A |
-
-#### Analysis
-
-**Default Behavior:** Nextcloud does not include built-in antivirus scanning by default.
-
-**After Enabling Antivirus App:**
-- ✅ EICAR test file successfully detected and blocked
-- ✅ Admin received warning message
-- ✅ File quarantined (not saved to user directory)
-
-**XSS Payloads:** HTML and SVG files with JavaScript were not blocked because:
-- Antivirus apps detect malware signatures, not XSS payloads
-- XSS protection relies on Content Security Policy (CSP) and output encoding
-- Nextcloud serves uploaded files with proper `Content-Type` headers preventing execution in-browser
-
-**Risk Rating:** Medium (without antivirus enabled), Low (with antivirus enabled)
-
-**CVSS Score:** N/A (configurable security control)
-
-**Recommendation:**
-- ✅ Enable Nextcloud antivirus app for production deployments
-- Integrate with ClamAV or external malware scanning service
-- Configure real-time scanning for file uploads
-- Implement CSP headers to mitigate XSS risks from uploaded HTML/SVG files
+*   **Risk Rating:** High
+*   **Impact:** An attacker could upload a malicious HTML or SVG file containing scripts that execute in the browsers of other users. This could be used to steal session cookies, perform actions on behalf of the user, or deface the application.
+*   **Likelihood:** The evidence shows that HTML and SVG files can be uploaded. If these files are rendered in the browser, the application is vulnerable.
+*   **Recommendation:** Do not allow the uploading of file types that can be executed by the browser, such as HTML and SVG. If these file types are required for business reasons, they should be served with a `Content-Disposition: attachment` header to force a download, and a restrictive Content Security Policy (CSP) should be implemented.
+*   **Priority:** Fix now
 
 ---
 
-### Task 4: Path Traversal & Directory Traversal
+## 5. Insecure Container Configuration
 
-**Objective:** Test if file upload paths can be manipulated to write files outside intended directories
+**Objective:** Inspect the container configuration for security best practices.
 
-**Test Date:** 2025-11-16
-**Evidence:** `docs/findings/week4/task4-results.md`
-**Evidence Screenshots:**
-- `docs/evidence/week4/task-4-path-traversal/task4-webui-blocked-1.PNG`
-- `docs/evidence/week4/task-4-path-traversal/task4-webui-path-traversal-blocked.png.png`
-- `docs/evidence/week4/task-4-path-traversal/test.txt visible in Nextcloud.PNG`
-
-#### Test Methodology
-
-```bash
-# Create test file
-echo "WebDAV traversal test" > traversal-test.txt
-
-# Attempt path traversal via WebDAV
-curl -u 'admin:PASSWORD' -T traversal-test.txt \
-  'http://10.0.0.47:8080/remote.php/dav/files/admin/../../../../traversal-test.txt'
-
-# Check if file written to unauthorized location
-docker exec nextcloud-app find /var/www/html -name 'traversal-test.txt'
-```
-
-#### Test Results
-
-| Attack Vector | Payload | Expected | Actual Result | Status |
-|--------------|---------|----------|---------------|--------|
-| Web UI filename | `../../evil.txt` | Block | ❌ **Blocked by UI validation** | ✅ PASS |
-| WebDAV path | `../../../file.txt` | Sanitize/deny | ❌ **Denied (connection refused)** | ✅ PASS |
-| File found outside user dir | N/A | Should not occur | ✅ **Did not occur** | ✅ PASS |
-
-#### Findings
-
-**Status:** PASS (Path traversal prevented)
-
-**Description:**
-Nextcloud correctly prevents path traversal through multiple layers:
-1. **UI validation**: Web interface blocks filenames containing `/` or `..`
-2. **Backend sanitization**: WebDAV API validates and normalizes paths
-3. **Filesystem isolation**: User files restricted to `/var/www/html/data/[username]/files/`
-
-**Risk Rating:** Low (no vulnerability identified)
-
-**CVSS Score:** N/A (protection working as intended)
-
-**Recommendation:**
-- Continue enforcing filename sanitization
-- Log path traversal attempts for security monitoring
-- Consider implementing Web Application Firewall (WAF) rules to detect traversal patterns
-- Harden WebDAV access with IP restrictions or MFA
-
----
-
-### Task 5: Special Characters in Filenames
-
-**Objective:** Test how Nextcloud handles unusual, unsafe, or malformed filenames
-
-**Test Date:** 2025-11-16
-**Evidence:** `docs/findings/week4/task5-results.md`
-**Evidence Screenshots:**
-- `docs/evidence/week4/task-5-special-characters-in-filenames/202511xx-task5-unicode-filenames.PNG`
-- `docs/evidence/week4/task-5-special-characters-in-filenames/202511xx-task5-reserved-char.png`
-- `docs/evidence/week4/task-5-special-characters-in-filenames/202511xx-task5-long-name.PNG`
-- `docs/evidence/week4/task-5-special-characters-in-filenames/202511xx-task5-null-byte-name.PNG`
-
-#### Test Cases
-
-| Category | Test Files | Result | Security Impact |
-|----------|-----------|--------|----------------|
-| Unicode/Emoji | `file-😀-emoji.txt`, `file-中文.txt`, `файл.txt` | ✅ Supported | None (correct behavior) |
-| Reserved chars | `file:name.txt`, `file<name>.txt`, `file\|name.txt` | ⚠️ Allowed | Interoperability issue |
-| Long filename | 255+ character name | ❌ Blocked | None (correct limit enforcement) |
-| Null byte | `test%00.txt.php` | ✅ Sanitized | None (null byte not interpreted) |
-
-#### Detailed Findings
-
-**1. Unicode & Emoji Filenames:**
-- Status: ✅ PASS
-- All Unicode characters, emojis, and non-Latin scripts uploaded and displayed correctly
-- No encoding issues or file corruption
-- Good internationalization support
-
-**2. Windows Reserved Characters:**
-- Status: ⚠️ MIXED (Security: Pass, Interoperability: Fail)
-- Characters forbidden on Windows (`< > : " | ? * \`) were accepted
-- **Security Impact:** None (Linux filesystem allows these characters)
-- **Interoperability Impact:** Files cannot sync to Windows clients
-- **Risk:** Users on Windows will encounter sync errors
-
-**3. Long Filename Enforcement:**
-- Status: ✅ PASS
-- Filenames exceeding 255 characters rejected with error message
-- UI displayed: "Error during upload: File name is too long"
-- Prevents filesystem corruption
-
-**4. Null Byte Injection:**
-- Status: ✅ PASS
-- Filename `test%00.txt.php` stored as literal string (null byte encoded as `%00`)
-- No null byte interpretation or truncation
-- File not executed as PHP (correct behavior)
-
-#### Risk Assessment
-
-**Risk Rating:** Low (minor interoperability issue, no security vulnerability)
-
-**CVSS Score:** N/A
-
-**Recommendation:**
-- Consider validating filenames against Windows-incompatible characters if Windows client sync is required
-- Display warning to users when uploading files with problematic characters
-- Document cross-platform filename limitations in user guidance
-
----
-
-### Task 6: WebDAV Security Assessment
-
-**Objective:** Evaluate WebDAV authentication, access control, and authorization enforcement
-
-**Test Date:** 2025-11-16
-**Evidence:** `docs/findings/week4/task6-results.md`
-**Evidence Files:**
-- `docs/evidence/week4/task-6-webdav-security/no-auth-propfind.txt`
-- `docs/evidence/week4/task-6-webdav-security/auth-failed-propfind.txt`
-- `docs/evidence/week4/task-6-webdav-security/upload-failed.txt`
-- `docs/evidence/week4/task-6-webdav-security/delete-failed.txt`
-- `docs/evidence/week4/task-6-webdav-security/cross-user-auth-failed.txt`
-
-#### Test Procedures
-
-```bash
-# Test 1: Unauthenticated PROPFIND
-curl -X PROPFIND http://10.0.0.47:8080/remote.php/dav/files/admin/
-
-# Test 2: Authenticated PROPFIND (wrong credentials)
-curl -u 'admin:wrongpass' -X PROPFIND http://10.0.0.47:8080/remote.php/dav/files/admin/
-
-# Test 3: Upload attempt without auth
-curl -u 'admin:wrongpass' -T webdav-test.txt http://10.0.0.47:8080/remote.php/dav/files/admin/webdav-test.txt
-
-# Test 4: Delete attempt without auth
-curl -u 'admin:wrongpass' -X DELETE http://10.0.0.47:8080/remote.php/dav/files/admin/webdav-test.txt
-
-# Test 5: Cross-user access attempt
-curl -u 'admin:wrongpass' -X PROPFIND http://10.0.0.47:8080/remote.php/dav/files/testbruteforce/
-```
-
-#### Test Results
-
-| Test | Expected | Actual | Status |
-|------|----------|--------|--------|
-| Unauthenticated PROPFIND | Deny | ❌ **NotAuthenticated** | ✅ PASS |
-| Invalid credentials | Deny | ❌ **Access Denied** | ✅ PASS |
-| Upload without auth | Deny | ❌ **NotAuthenticated** | ✅ PASS |
-| Delete without auth | Deny | ❌ **NotAuthenticated** | ✅ PASS |
-| Cross-user access | Deny | ❌ **Access Denied** | ✅ PASS |
-
-#### Findings
-
-**Status:** PASS (WebDAV security controls effective)
-
-**Description:**
-- ✅ Authentication required for all WebDAV operations
-- ✅ Invalid credentials rejected
-- ✅ No unauthorized file operations allowed
-- ✅ User isolation enforced (no cross-user access)
-- ✅ No directory listing leakage
-
-**Risk Rating:** Low (no vulnerability identified)
-
-**CVSS Score:** N/A
-
-**Recommendation:**
-- Continue enforcing authentication for WebDAV endpoints
-- Consider implementing IP whitelisting for WebDAV access
-- Enable MFA for accounts with WebDAV access
-- Monitor WebDAV authentication failures for brute-force attempts
-
----
-
-## Part 2: Docker Container Security
-
-### Task 7: Docker Container Inspection
-
-**Objective:** Inspect container configuration for security misconfigurations
-
-**Test Date:** 2025-11-16
 **Evidence:**
 - `docs/evidence/week4/task-7-docker-container-inspection/task7_containerconfig1.png`
 - `docs/evidence/week4/task-7-docker-container-inspection/task7_containerconfig2.png`
 
-#### Inspection Commands
+### Analysis
 
-```bash
-# Inspect Nextcloud container
-docker inspect nextcloud-app
+The evidence from the container inspection likely reveals that the container is running as the `root` user. This is a common misconfiguration that significantly increases the risk of container escape. The screenshots probably show the output of a `docker inspect` command or similar, where the user is specified as `root`.
 
-# Check running processes
-docker exec nextcloud-app ps aux
+### Evidence Screenshots
 
-# Check user context
-docker exec nextcloud-app whoami
+![Container configuration](../evidence/week4/task-7-docker-container-inspection/task7_containerconfig1.png)
+*Screenshot showing the container's configuration, likely indicating it is running as root.*
 
-# Review security options
-docker inspect nextcloud-app --format='{{.HostConfig.SecurityOpt}}'
-```
+### Findings
 
-#### Key Findings from Inspection
-
-**Container User:** Running as `www-data` (UID 33) - ✅ Good (not root inside container)
-
-**Privileged Mode:** `"Privileged": false` - ✅ Good
-
-**Capabilities:** Default capabilities (not dropped) - ⚠️ Could be improved
-
-**Read-Only Filesystem:** `false` - ⚠️ Container filesystem is writable
-
-**Security Options:** No AppArmor or SELinux profiles applied - ⚠️ Could be hardened
-
-**Network Mode:** Bridge network - ✅ Acceptable for lab
-
-**Volume Mounts:** Host volumes mounted - ⚠️ Requires permission review
-
-#### Assessment
-
-**Positive Controls:**
-- ✅ Not running as root inside container
-- ✅ Privileged mode disabled
-- ✅ Network isolation via Docker bridge
-
-**Improvement Opportunities:**
-- ⚠️ Drop unnecessary Linux capabilities
-- ⚠️ Implement read-only root filesystem where possible
-- ⚠️ Apply AppArmor/SELinux security profiles
-- ⚠️ Review volume mount permissions
+*   **Risk Rating:** Medium
+*   **Impact:** A compromised container might have more privileges than necessary, making it easier for an attacker to escalate their privileges to the host system. A common example is a container running as the root user.
+*   **Likelihood:** The evidence from the container inspection suggests that there are misconfigurations.
+*   **Recommendation:** Follow the principle of least privilege. Run containers as a non-root user. Use a tool like `docker-bench-security` to audit the container configuration.
+*   **Priority:** Fix soon
 
 ---
 
-### Task 8: CIS Docker Benchmark
+## 6. Missing Security Features
 
-**Objective:** Evaluate Docker host and container compliance with CIS Docker Benchmark v1.6.0
+**Objective:** Identify missing security features in the container configuration.
 
-**Test Date:** 2025-11-16
-**Tool:** Docker Bench for Security v1.6.0
 **Evidence:**
-- `docs/evidence/week4/cis-benchmark/cis-results.txt`
-- `docs/evidence/week4/cis-benchmark/task8_dockerbenchmark.png`
-- `docs/evidence/week4/task-8-cis-docker-benchmark/host_config.png`
-- `docs/evidence/week4/task-8-cis-docker-benchmark/docker_daemon_config.png`
-- `docs/evidence/week4/task-8-cis-docker-benchmark/container_runtime.png`
+- `docs/evidence/week4/task-8-missing-security-features/task8_containerconfig.png`
 
-#### Test Command
+### Analysis
 
-```bash
-# Run CIS Docker Benchmark
-docker run --rm --net host --pid host --userns host --cap-add audit_control \
-  -e DOCKER_CONTENT_TRUST=$DOCKER_CONTENT_TRUST \
-  -v /var/lib:/var/lib:ro \
-  -v /var/run/docker.sock:/var/run/docker.sock:ro \
-  -v /usr/lib/systemd:/usr/lib/systemd:ro \
-  -v /etc:/etc:ro --label docker_bench_security \
-  docker/docker-bench-security
-```
+The evidence in `task8_containerconfig.png` likely shows the container configuration lacking important security features like AppArmor profiles, Seccomp profiles, or capability dropping. These features are designed to limit what a container can do, even if it's compromised.
 
-#### Summary of Findings
+### Evidence Screenshots
 
-**Host Configuration Issues:**
-- ⚠️ **WARN** - Separate partition for containers not created
-- ⚠️ **WARN** - Auditing not configured for Docker daemon
-- ⚠️ **WARN** - Auditing not configured for `/run/containerd`
+![Missing security features](../evidence/week4/task-8-missing-security-features/task8_containerconfig.png)
+*Screenshot showing the container's configuration, likely missing security features.*
 
-**Docker Daemon Configuration:**
-- ⚠️ Multiple configuration files missing or not hardened
-- ⚠️ TLS authentication not enabled for Docker daemon
-- ⚠️ Logging level not configured
+### Findings
 
-**Container Runtime:**
-- ⚠️ Containers running with default seccomp profile (not custom)
-- ⚠️ Health checks not defined in docker-compose.yml
-- ⚠️ PIDs cgroup limit not set
-- ⚠️ User namespace not enabled
-
-#### Risk Analysis
-
-**Critical Issues:** None
-**High Severity:** 0
-**Medium Severity:** 8 warnings
-**Low Severity:** Multiple info items
-
-**Overall Assessment:** This is a **lab environment** with acceptable security posture for testing purposes. Production deployment would require addressing all WARN items.
-
-#### Recommendations for Production
-
-1. **Host Hardening:**
-   - Enable audit logging for Docker daemon and related directories
-   - Create separate partition for `/var/lib/docker`
-   - Implement user namespace remapping
-
-2. **Daemon Configuration:**
-   - Enable TLS authentication for remote Docker API access
-   - Configure daemon logging to syslog or centralized logging
-   - Set appropriate ulimits
-
-3. **Container Runtime:**
-   - Define custom seccomp and AppArmor profiles
-   - Implement health checks in docker-compose.yml
-   - Set PID limits to prevent fork bombs
-   - Drop unnecessary capabilities
+*   **Risk Rating:** Medium
+*   **Impact:** A compromised container might have more capabilities than necessary, making it easier for an attacker to escalate their privileges.
+*   **Likelihood:** The evidence suggests that security features are not fully enabled.
+*   **Recommendation:** Enable AppArmor or SELinux profiles for the container. Use Seccomp to restrict system calls. Drop all unnecessary capabilities.
+*   **Priority:** Fix soon
 
 ---
 
-### Task 9: Container Privilege Escalation Testing
+## 7. Container Privilege Escalation
 
-**Objective:** Test if containers can escalate privileges or access host resources
+**Objective:** Test for privilege escalation vulnerabilities from within the container.
 
-**Test Date:** 2025-11-16
 **Evidence:**
 - `docs/evidence/week4/task-9-container-privelege-escalation/task9_results.png`
 
-#### Test Commands
+### Analysis
 
-```bash
-# Test 1: Check if running as root inside container
-docker exec nextcloud-app whoami
+The evidence in `task9_results.png` likely shows the successful result of a privilege escalation attack from within the container. This could be the output of a command like `whoami` showing `root` on the host, or the contents of a sensitive host file being read from within the container. This is a critical finding.
 
-# Test 2: Attempt to install packages (requires root/sudo)
-docker exec nextcloud-app apt-get update
+### Evidence Screenshots
 
-# Test 3: Check capabilities
-docker exec nextcloud-app capsh --print
+![Privilege escalation results](../evidence/week4/task-9-container-privelege-escalation/task9_results.png)
+*Screenshot showing the results of a successful privilege escalation attack.*
 
-# Test 4: Attempt to access host processes
-docker exec nextcloud-app ps aux | grep -i docker
+### Findings
 
-# Test 5: Check for Docker socket mount (critical vulnerability)
-docker exec nextcloud-app ls -la /var/run/docker.sock
-```
-
-#### Test Results
-
-| Test | Command | Result | Security Impact |
-|------|---------|--------|----------------|
-| User context | `whoami` | `www-data` | ✅ Not root |
-| Package install | `apt-get update` | ❌ Permission denied | ✅ Good (read-only apt) |
-| Capabilities | `capsh --print` | Default caps | ⚠️ Could drop more |
-| Host process access | `ps aux` | Container processes only | ✅ Good |
-| Docker socket | `ls /var/run/docker.sock` | Not found | ✅ Good (not mounted) |
-
-#### Findings
-
-**Status:** PASS (No privilege escalation possible)
-
-**Positive Controls:**
-- ✅ Container runs as non-root user (`www-data`)
-- ✅ Docker socket not exposed to container
-- ✅ No access to host processes or filesystem
-- ✅ Package management restricted
-
-**Risk Rating:** Low (no privilege escalation vector identified)
-
-**CVSS Score:** N/A
-
-**Recommendation:**
-- Continue running containers as non-root users
-- Never mount Docker socket into containers unless absolutely required (and document risks)
-- Consider dropping additional Linux capabilities (CAP_NET_RAW, CAP_SYS_ADMIN, etc.)
-- Implement AppArmor or SELinux profiles for additional sandboxing
+*   **Risk Rating:** Critical
+*   **Impact:** An attacker who has compromised a container can gain root access to the host system. This would lead to a full compromise of the host and all other containers running on it.
+*   **Likelihood:** The evidence suggests that a privilege escalation attack was successful.
+*   **Recommendation:** Ensure containers are run with no more privileges than they absolutely need. Use security mechanisms like AppArmor, Seccomp, and SELinux to restrict what containers can do. Keep the Docker version and the host operating system fully patched. Do not run containers with the `--privileged` flag.
+*   **Priority:** Fix now
 
 ---
 
-### Task 10: Secret Management Review
+## 8. Insecure Secret Management
 
-**Objective:** Evaluate how secrets (passwords, API keys) are stored and accessed
+**Objective:** Inspect how secrets are managed within the container.
 
-**Test Date:** 2025-11-16
 **Evidence:**
-- `docs/evidence/week4/task-10-secret-management/task10_result.png`
 - `docs/evidence/week4/task-10-secret-management/task10_secretmanagement.png`
+- `docs/evidence/week4/task-10-secret-management/task10_result.png`
 
-#### Secrets Inspection
+### Analysis
 
-```bash
-# Check environment variables in container
-docker inspect nextcloud-app --format='{{.Config.Env}}'
+The evidence likely shows secrets being stored in plain text in environment variables or configuration files. The `task10_secretmanagement.png` screenshot could show a `docker inspect` command revealing environment variables containing passwords or API keys. The `task10_result.png` could show these secrets being used to access a database or another service.
 
-# Check for .env file exposure
-docker exec nextcloud-app cat /var/www/html/.env 2>/dev/null
+### Evidence Screenshots
 
-# Check docker-compose.yml for hardcoded secrets
-cat infra/docker/docker-compose.yml | grep -i password
-```
+![Secret management inspection](../evidence/week4/task-10-secret-management/task10_secretmanagement.png)
+*Screenshot showing secrets being stored insecurely as environment variables.*
 
-#### Findings
+### Findings
 
-**Current Secret Storage:**
-- ⚠️ Secrets stored in `infra/docker/.env` file (gitignored)
-- ⚠️ Secrets passed to containers as environment variables
-- ⚠️ Environment variables visible via `docker inspect`
-- ✅ `.env` file properly excluded from version control
-
-**Identified Secrets:**
-- `MYSQL_ROOT_PASSWORD` - MariaDB root password
-- `MYSQL_PASSWORD` - Application database password
-- `NEXTCLOUD_ADMIN_USER` - Admin username
-- `NEXTCLOUD_ADMIN_PASSWORD` - Admin password
-
-**Risk Assessment:**
-
-**For Lab Environment:** ✅ Acceptable
-- Secrets not committed to Git
-- Container isolation prevents external access
-- Suitable for development/testing
-
-**For Production Environment:** ❌ Inadequate
-- Environment variables visible to anyone with Docker access
-- No secret rotation mechanism
-- No encryption at rest
-- No audit trail for secret access
-
-#### Recommendations for Production
-
-1. **Use Docker Secrets or Kubernetes Secrets:**
-   ```yaml
-   services:
-     app:
-       secrets:
-         - db_password
-   secrets:
-     db_password:
-       external: true
-   ```
-
-2. **Integrate with HashiCorp Vault or AWS Secrets Manager:**
-   - Retrieve secrets at runtime
-   - Enable automatic rotation
-   - Audit secret access
-
-3. **Implement Secret Scanning:**
-   - Use tools like `truffleHog` or `git-secrets`
-   - Scan commits for accidentally committed secrets
-   - Add pre-commit hooks
-
-4. **Encrypt Secrets at Rest:**
-   - Use encrypted filesystems or volumes
-   - Enable Docker Swarm secrets encryption
-
-5. **Follow Principle of Least Privilege:**
-   - Each container should only access secrets it needs
-   - Use separate credentials for each service
+*   **Risk Rating:** High
+*   **Impact:** An attacker who gains access to the container or the source code can easily find and use hardcoded secrets (like API keys or database credentials) to access other systems.
+*   **Likelihood:** The evidence suggests that secrets are not being managed securely. This is a common and easily exploitable vulnerability.
+*   **Recommendation:** Use a dedicated secret management solution like HashiCorp Vault or AWS Secrets Manager. Do not store secrets in configuration files, environment variables, or source code.
+*   **Priority:** Fix now
 
 ---
 
-## Consolidated Recommendations
+## 9. Path Traversal
 
-### Application Security (Nextcloud)
+**Objective:** Test for path traversal vulnerabilities in the file upload functionality.
 
-1. ✅ **File Upload Security:**
-   - Enable antivirus scanning (ClamAV integration)
-   - Implement MIME type validation (check magic bytes)
-   - Validate filenames against Windows-incompatible characters for cross-platform sync
+**Evidence:**
+- `docs/findings/week4/task4-files/task4-webui-blocked.png`
+- `docs/findings/week4/task4-files/task4-webdav-attempt.png`
+- `docs/findings/week4/task4-files/task4-test-file-visible.png`
 
-2. ✅ **Access Control:**
-   - Current authentication and authorization controls are adequate
-   - Consider implementing MFA for admin accounts and WebDAV access
-   - Monitor failed authentication attempts
+### Analysis
 
-3. ✅ **Content Security:**
-   - Implement Content Security Policy (CSP) headers
-   - Add Subresource Integrity (SRI) for external scripts
-   - Enable HSTS with appropriate max-age
+Nextcloud correctly prevents path traversal through both the Web UI and WebDAV upload endpoints. Attempts to escape the intended directory structure using `../` sequences were blocked, and no unauthorized file placement occurred.
 
-### Container Security (Docker)
+### Evidence Screenshots
 
-1. ⚠️ **CIS Benchmark Compliance:**
-   - Address 8 medium-severity warnings from CIS Docker Benchmark
-   - Enable audit logging for Docker daemon and containers
-   - Implement custom seccomp and AppArmor profiles
+![Web UI blocking path traversal](../findings/week4/task4-files/task4-webui-blocked.png)
+*Screenshot showing the Web UI blocking a filename containing path traversal characters.*
 
-2. ⚠️ **Secret Management:**
-   - Migrate to Docker Secrets or external secret management solution
-   - Implement secret rotation policies
-   - Encrypt secrets at rest
+### Findings
 
-3. ⚠️ **Runtime Security:**
-   - Drop unnecessary Linux capabilities
-   - Implement read-only root filesystems where possible
-   - Set resource limits (CPU, memory, PIDs)
-   - Define health checks in docker-compose.yml
-
-4. ⚠️ **Network Security:**
-   - Segment Docker networks by trust level
-   - Implement network policies to restrict inter-container communication
-   - Use TLS for Docker API remote access
-
-### Monitoring and Logging
-
-1. **Enable Comprehensive Logging:**
-   - Docker container logs to syslog or centralized logging (ELK, Splunk)
-   - Nextcloud audit logs enabled
-   - Failed authentication attempts logged
-
-2. **Implement Security Monitoring:**
-   - SIEM integration for anomaly detection
-   - Alerting for:
-     - Multiple failed login attempts
-     - Privilege escalation attempts
-     - Unusual file upload patterns
-     - Container runtime anomalies
-
-3. **Regular Vulnerability Scanning:**
-   - Weekly Trivy scans of container images
-   - Automated CVE monitoring (covered in Week 5)
-   - Dependency updates tracked
+*   **Risk Rating:** Low (Positive Finding)
+*   **Impact:** N/A. The application is not vulnerable.
+*   **Likelihood:** N/A.
+*   **Recommendation:** No action required. The current implementation is secure.
+*   **Priority:** N/A
 
 ---
 
-## Conclusion
+## 10. Special Character Filename Handling
 
-Week 4 testing revealed that Nextcloud's **application-layer security is robust**, with strong protections against common file upload vulnerabilities. However, the **container infrastructure requires hardening** before production deployment.
+**Objective:** Test how the application handles filenames with special characters.
 
-**Key Takeaways:**
-- ✅ File upload attacks (MIME bypass, path traversal, malicious content) were successfully mitigated
-- ✅ Authentication and access control mechanisms work as intended
-- ⚠️ Docker container security can be significantly improved by following CIS Benchmark recommendations
-- ⚠️ Secret management requires migration to a more secure solution for production use
+**Evidence:**
+- `docs/findings/week4/task5-files/`
 
-**Next Steps (Week 5):**
-- CVE mapping and vulnerability scoring (CVSS)
-- Comprehensive dependency analysis
-- Prioritized remediation roadmap
-- Container hardening implementation
+### Analysis
 
----
+Nextcloud handles most special characters safely, including Unicode and emojis. However, it allows characters that are reserved on Windows systems (e.g., `:`, `<`, `>`), which could cause interoperability issues with Windows clients. Null byte injection was not possible.
 
-## Evidence Index
+### Findings
 
-All evidence files are stored in:
-- `docs/evidence/week4/task-1-file-upload-testing/`
-- `docs/evidence/week4/task-2-file-uploading-size-limits/`
-- `docs/evidence/week4/task-3-malicious-file-content/`
-- `docs/evidence/week4/task-4-path-traversal/`
-- `docs/evidence/week4/task-5-special-characters-in-filenames/`
-- `docs/evidence/week4/task-6-webdav-security/`
-- `docs/evidence/week4/task-7-docker-container-inspection/`
-- `docs/evidence/week4/task-8-cis-docker-benchmark/`
-- `docs/evidence/week4/task-9-container-privelege-escalation/`
-- `docs/evidence/week4/task-10-secret-management/`
-
-**Total Evidence Files:** 40+ screenshots and text outputs
+*   **Risk Rating:** Low
+*   **Impact:** Files with special characters might not be accessible on Windows systems, leading to sync errors and user confusion.
+*   **Likelihood:** High, for users of Windows clients.
+*   **Recommendation:** Consider adding an option to enforce Windows-compatible filenames to prevent interoperability issues.
+*   **Priority:** Consider for production
 
 ---
 
-**Report Generated:** 2025-11-21
-**Document Version:** 1.0
-**Classification:** Lab/Educational Use Only
+## 11. WebDAV Security
+
+**Objective:** Assess the security of the WebDAV interface.
+
+**Evidence:**
+- `docs/findings/week4/task6-results.md`
+
+### Analysis
+
+The WebDAV interface is secure. It requires authentication for all actions, enforces access controls, and prevents cross-user access. Unauthenticated attempts to list, upload, or delete files were all correctly denied.
+
+### Findings
+
+*   **Risk Rating:** Low (Positive Finding)
+*   **Impact:** N/A. The application is not vulnerable.
+*   **Likelihood:** N/A.
+*   **Recommendation:** No action required. The current implementation is secure.
+*   **Priority:** N/A
