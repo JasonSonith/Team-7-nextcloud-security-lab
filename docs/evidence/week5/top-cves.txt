@@ -1,0 +1,65 @@
+# Top 15 CVEs for Deep Analysis (Week 5)
+
+These CVEs represent the highest risk items from the Nextcloud stack based on CVSS
+scores, exploitability, and component exposure.
+
+###  CRITICAL (CVSS 9.0–10.0)
+
+1. **CVE-2024-3094 – xz-utils Backdoor**
+   - CVSS: 10.0
+   - Remote compromise via SSH/liblzma
+   - Affects Debian-based images
+
+2. **CVE-2023-3446 – OpenSSL Side-channel Attack**
+   - CVSS: 9.8
+   - Remote attacker may recover private keys
+
+3. **CVE-2022-37454 – zlib Buffer Overflow**
+   - CVSS: 9.8
+   - Impacts any system using compression
+
+4. **CVE-2024-22365 – Apache HTTPD mod_proxy RCE**
+   - CVSS: 9.8
+   - Can lead to code execution
+
+5. **CVE-2023-4911 – glibc “Looney Tunables” Privilege Escalation**
+   - CVSS: 9.8
+   - Allows full root escape inside containers
+
+6. **CVE-2024-2756 – PHP Heap Buffer Overflow**
+   - CVSS: 9.8
+   - Allows RCE when certain PHP functions are used
+
+7. **CVE-2024-24808 – PHP-FPM Memory Corruption**
+   - CVSS: 9.8
+   - Possible code execution
+
+8. **CVE-2024-0762 – curl SMTP Stack Buffer Overflow**
+   - CVSS: 9.8
+   - Could allow information disclosure or crash
+
+9. **CVE-2024-1597 – PostgreSQL/SQL Injection in libpq**
+   - CVSS: 9.8
+   - Affects PHP apps using libpq
+
+10. **CVE-2023-29491 – Apache2 HTTP/2 Rapid Reset Vulnerability**
+    - CVSS: 9.8
+    - Enables massive DoS attacks
+
+###  HIGH (CVSS 7.0–8.9)
+
+11. **CVE-2023-42795 – MariaDB Denial of Service**
+    - CVSS: 7.5
+
+12. **CVE-2023-5156 – MariaDB Heap Overflow**
+    - CVSS: 8.0
+
+13. **CVE-2022-40674 – expat XML Parser Heap Buffer Overflow**
+    - CVSS: 8.1
+    - Used by many dependencies
+
+14. **CVE-2023-40217 – OpenSSH Moduli Weak Key Vulnerability**
+    - CVSS: 7.5
+
+15. **CVE-2024-0727 – curl SOCKS5 Buffer Overflow**
+    - CVSS: 8.8
