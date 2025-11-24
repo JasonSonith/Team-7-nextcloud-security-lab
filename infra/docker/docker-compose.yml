@@ -12,7 +12,7 @@ services:
       - db:/var/lib/mysql
 
   app:
-    image: nextcloud:29.0.5-apache
+    image: nextcloud:29.0.16-apache
     restart: always
     ports:
       - "0.0.0.0:8080:80"
