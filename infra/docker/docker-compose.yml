@@ -1,6 +1,6 @@
 services:
   db:
-    image: mariadb:11
+    image: mariadb:11.0.4
     restart: always
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     environment:
@@ -12,7 +12,7 @@ services:
       - db:/var/lib/mysql
 
   app:
-    image: nextcloud:29-apache
+    image: nextcloud:29.0.5-apache
     restart: always
     ports:
       - "0.0.0.0:8080:80"
@@ -30,7 +30,7 @@ services:
       - nc:/var/www/html
 
   proxy:
-    image: nginx:alpine
+    image: nginx:1.27-alpine
     restart: always
     depends_on:
       - app
