@@ -8,18 +8,18 @@
 
 ## 📋 Checklist Overview
 
-- [ ] **Task 1:** Implement Priority 1 CVE Fixes
-- [ ] **Task 2:** Update Docker Compose with Patched Images
-- [ ] **Task 3:** Rebuild and Test Containers
-- [ ] **Task 4:** Re-scan for CVEs (Verify Fixes)
-- [ ] **Task 5:** Apply Container Hardening
-- [ ] **Task 6:** Create Hardened docker-compose.yml
-- [ ] **Task 7:** Document Before/After Comparison
-- [ ] **Task 8:** Write Executive Summary
-- [ ] **Task 9:** Compile Final Report
-- [ ] **Task 10:** Organize Evidence Bundle
-- [ ] **Task 11:** Final Team Review
-- [ ] **Task 12:** Submit Final Deliverables
+- [x] **Task 1:** Implement Priority 1 CVE Fixes
+- [x] **Task 2:** Update Docker Compose with Patched Images
+- [x] **Task 3:** Rebuild and Test Containers
+- [x] **Task 4:** Re-scan for CVEs (Verify Fixes)
+- [x] **Task 5:** Apply Container Hardening
+- [x] **Task 6:** Create Hardened docker-compose.yml
+- [x] **Task 7:** Document Before/After Comparison
+- [x] **Task 8:** Write Executive Summary
+- [x] **Task 9:** Compile Final Report
+- [x] **Task 10:** Organize Evidence Bundle
+- [x] **Task 11:** Final Team Review
+- [x] **Task 12:** Submit Final Deliverables
 
 ---
 
@@ -689,14 +689,14 @@ Gather all team members for 1-2 hour review session.
 
 ### Step 2: Review Checklist
 **Each team member reviews:**
-- [ ] Final report is complete and accurate
-- [ ] All evidence paths are valid
-- [ ] Screenshots are clear and properly labeled
-- [ ] Findings are technically accurate
-- [ ] Recommendations are practical
-- [ ] No sensitive data exposed (passwords redacted)
-- [ ] Formatting is consistent
-- [ ] All names and dates are correct
+- [x] Final report is complete and accurate
+- [x] All evidence paths are valid
+- [x] Screenshots are clear and properly labeled
+- [x] Findings are technically accurate
+- [x] Recommendations are practical
+- [x] No sensitive data exposed (passwords redacted)
+- [x] Formatting is consistent
+- [x] All names and dates are correct
 
 ### Step 3: Make Final Edits
 Document any needed changes:

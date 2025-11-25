@@ -4,3 +4,9 @@ mariadb                   11              ae6119716eda   3 months ago    455MB
 nextcloud                 29-apache       a7fbfcd4759b   7 months ago    1.89GB
 nextcloud                 29.0.9-apache   82f22d544d14   12 months ago   1.83GB
 nginx                     1.26.2-alpine   b9e1705b69f7   15 months ago   66.2MB
+mariadb                   11.8.5          1cac8492bd78   8 days ago      460MB
+nginx                     alpine          61e01287e546   7 weeks ago     79.7MB
+mariadb                   11              ae6119716eda   3 months ago    455MB
+nextcloud                 29-apache       a7fbfcd4759b   7 months ago    1.89GB
+nextcloud                 29.0.9-apache   82f22d544d14   12 months ago   1.83GB
+nginx                     1.26.2-alpine   b9e1705b69f7   15 months ago   66.2MB

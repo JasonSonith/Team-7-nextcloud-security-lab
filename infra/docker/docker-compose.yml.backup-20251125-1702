@@ -1,0 +1,46 @@
+services:
+  db:
+    image: mariadb:11.8.5  # Updated 2025-11-25: Patched version (was mariadb:11)
+    restart: always
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    environment:
+      - MARIADB_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MARIADB_DATABASE=${MYSQL_DATABASE}
+      - MARIADB_USER=${MYSQL_USER}
+      - MARIADB_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - db:/var/lib/mysql
+
+  app:
+    image: nextcloud:29-apache  # Updated 2025-11-25: Use floating tag to match data version 29.0.16
+    restart: always
+    ports:
+      - "0.0.0.0:8080:80"
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - NEXTCLOUD_ADMIN_USER=${NEXTCLOUD_ADMIN_USER}
+      - NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_ADMIN_PASSWORD}
+      - NEXTCLOUD_TRUSTED_DOMAINS=${NEXTCLOUD_TRUSTED_DOMAINS}
+      - APACHE_SERVER_NAME=localhost
+    depends_on:
+      - db
+    volumes:
+      - nc:/var/www/html
+
+  proxy:
+    image: nginx:mainline-alpine  # Updated 2025-11-25: Best available (6 CVEs, 0 CRITICAL/HIGH) - Alpine 3.22.2
+    restart: always
+    depends_on:
+      - app
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+
+volumes:
+  db: {}
+  nc: {}

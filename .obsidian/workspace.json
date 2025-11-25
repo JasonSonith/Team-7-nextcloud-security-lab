@@ -13,15 +13,30 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/evidence/week6/remediation-plan.md",
+                "file": "docs/evidence/week6/docker-compose-changes.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "remediation-plan"
+              "title": "docker-compose-changes"
+            }
+          },
+          {
+            "id": "2437b1b1479eda30",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "docs/week-notes/week-6-todo.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "week-6-todo"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -94,7 +109,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "docs/evidence/week6/remediation-plan.md",
+                "file": "docs/week-notes/week-6-todo.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +119,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for remediation-plan"
+              "title": "Backlinks for week-6-todo"
             }
           },
           {
@@ -113,12 +128,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "docs/evidence/week6/remediation-plan.md",
+                "file": "docs/week-notes/week-6-todo.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from remediation-plan"
+              "title": "Outgoing links from week-6-todo"
             }
           },
           {
@@ -156,13 +171,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "docs/evidence/week6/remediation-plan.md",
+                "file": "docs/week-notes/week-6-todo.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of remediation-plan"
+              "title": "Outline of week-6-todo"
             }
           }
         ]
@@ -183,24 +198,53 @@
       "bases:Create new base": false
     }
   },
-  "active": "b742180587de8390",
+  "active": "2437b1b1479eda30",
   "lastOpenFiles": [
-    "docs/evidence/week6/functionality-test-results.md",
-    "docs/evidence/week6/functionality-test-results.md.tmp.7559.1764101559746",
-    "docs/evidence/week6/post-patch-image-versions.txt",
-    "docs/evidence/week6/post-patch-container-status.txt",
-    "docs/evidence/week6/rebuild-notes.md",
-    "docs/evidence/week6/rebuild-notes.md.tmp.7559.1764101448832",
-    "infra/docker/docker-compose.yml.tmp.7559.1764101366685",
-    "docs/evidence/week6/docker-compose-changes.md",
-    "docs/evidence/week6/docker-compose-changes.md.tmp.7559.1764100766301",
-    "docs/evidence/week6/docker-compose-patched.yml",
-    "infra/docker/docker-compose.yml.tmp.7559.1764100726995",
-    "infra/docker/docker-compose.yml.tmp.7559.1764100726818",
-    "infra/docker/docker-compose.yml.tmp.7559.1764100726668",
-    "CLAUDE.md",
-    "README.md",
-    "docs/findings/week-0-findings.md",
-    "test.svg"
+    "docs/week-notes/week-6-todo.md.tmp.15880.1764113109248",
+    "reports/evidence-bundle/scans/nmap-parsed.csv",
+    "reports/evidence-bundle/scans/nmap-heatmap.png",
+    "reports/evidence-bundle/scans/nmap-80-8080.xml",
+    "reports/evidence-bundle/scans/nmap-ssl-enum.txt",
+    "reports/evidence-bundle/scans/nmap-80-8080.txt",
+    "reports/evidence-bundle/scans/nmap-ports.txt",
+    "reports/evidence-bundle/scans/nmap-local.txt",
+    "reports/evidence-bundle/scans",
+    "reports/evidence-bundle/evidence/week6/remediation-plan.md",
+    "reports/evidence-bundle/evidence/week6/post-patch-container-status.txt",
+    "reports/evidence-bundle/evidence/week6/docker-compose-changes.md",
+    "reports/evidence-bundle/evidence/week6/functionality-test-results.md",
+    "reports/evidence-bundle/evidence/week6/docker-compose-patched.yml",
+    "reports/evidence-bundle/evidence/week6/post-patch-scans/nextcloud-after.txt",
+    "reports/evidence-bundle/evidence/week6/rebuild-notes.md",
+    "reports/evidence-bundle/evidence/week6/target-versions.md",
+    "reports/evidence-bundle/evidence/week6/hardening/hardening-summary.md",
+    "reports/evidence-bundle/evidence/week6/hardening/TASK5-CHECKLIST.md",
+    "reports/evidence-bundle/evidence/week6/hardening/before-after-comparison.md",
+    "reports/evidence-bundle/evidence/week3/session-cookie-testing/session-cookies.png",
+    "reports/evidence-bundle/evidence/week3/session-cookie-testing/document.cookie.png",
+    "reports/evidence-bundle/evidence/week3/xss-testing/04-share-label-xss-tests.png",
+    "reports/evidence-bundle/evidence/week3/xss-testing/03-filename-xss-encoded.png",
+    "reports/evidence-bundle/evidence/week3/xss-testing/02-profile-img-tag-encoded.png",
+    "reports/evidence-bundle/evidence/week3/xss-testing/01-invalid-value.png",
+    "reports/evidence-bundle/evidence/week3/password-testing/password-strength-common-password-check.png",
+    "reports/evidence-bundle/evidence/week3/password-testing/password-length-cmmon-password-check.png.png",
+    "reports/evidence-bundle/evidence/week3/nextcloud-audit/03-disabled-apps.png",
+    "reports/evidence-bundle/evidence/week5/task9-cve-details.md",
+    "reports/evidence-bundle/evidence/week5/task12-priority-matrix.md",
+    "reports/evidence-bundle/evidence/week5/task11-mitigations.md",
+    "reports/evidence-bundle/evidence/week5/task10-remediation-matrix.md",
+    "reports/evidence-bundle/evidence/week5/START-HERE.md",
+    "reports/evidence-bundle/evidence/week5/QUICK-START-CHECKLIST.md",
+    "reports/evidence-bundle/configs/HARDENING-NOTES.md",
+    "reports/evidence-bundle/findings/week-6-findings.md",
+    "reports/evidence-bundle/findings/week6-before-after-analysis.md",
+    "reports/evidence-bundle/findings/week-5-findings.md",
+    "reports/evidence-bundle/findings/week-4-findings.md",
+    "reports/evidence-bundle/findings/week-3-findings.md",
+    "reports/evidence-bundle/findings/week-2-findings.md",
+    "reports/evidence-bundle/findings/week-1-findings.md",
+    "reports/evidence-bundle/findings/week-0-findings.md",
+    "reports/evidence-bundle/INDEX.md",
+    "reports/Final-Security-Assessment-Report.md"
   ]
 }

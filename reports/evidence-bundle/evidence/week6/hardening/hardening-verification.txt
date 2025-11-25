@@ -1,0 +1,50 @@
+CONTAINER HARDENING VERIFICATION
+Generated: 2025-11-25 17:05:49
+==================================
+
+1. SECURITY OPTIONS
+-------------------
+Proxy (nginx):
+  - Security Options: [no-new-privileges:true]
+  - Read-Only Filesystem: true
+  - Capabilities Dropped: [ALL]
+  - Capabilities Added: [CAP_CHOWN CAP_NET_BIND_SERVICE CAP_SETGID CAP_SETUID]
+  - User: 101:101
+
+App (Nextcloud):
+  - Security Options: [no-new-privileges:true]
+  - Capabilities Dropped: [ALL]
+  - Capabilities Added: [CAP_CHOWN CAP_DAC_OVERRIDE CAP_NET_BIND_SERVICE CAP_SETGID CAP_SETUID]
+
+DB (MariaDB):
+  - Security Options: [no-new-privileges:true]
+  - Capabilities Dropped: [ALL]
+  - Capabilities Added: [CAP_CHOWN CAP_DAC_OVERRIDE CAP_SETGID CAP_SETUID]
+
+2. RESOURCE LIMITS
+------------------
+6794d1cb54ef - CPU: 0.00% - Memory: 12.85MiB / 512MiB
+0424e7bfcddb - CPU: 0.00% - Memory: 92.04MiB / 2GiB
+7d3fe34350c5 - CPU: 0.01% - Memory: 103.4MiB / 2GiB
+
+3. FUNCTIONALITY TEST
+---------------------
+Nextcloud Status:
+  - installed: true
+  - version: 29.0.16.1
+  - versionstring: 29.0.16
+  - edition: 
+  - maintenance: false
+  - needsDbUpgrade: false
+  - productname: Nextcloud
+  - extendedSupport: false
+
+HTTPS Connectivity Test:
+HTTP/2 302 
+server: nginx/1.29.3
+date: Tue, 25 Nov 2025 23:05:51 GMT
+
+HTTP Port 8080 Test:
+HTTP/1.1 302 Found
+Date: Tue, 25 Nov 2025 23:05:51 GMT
+Server: Apache/2.4.62 (Debian)

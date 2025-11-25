@@ -1,0 +1,4 @@
+NAME             IMAGE                 COMMAND                  SERVICE   CREATED             STATUS          PORTS
+docker-app-1     nextcloud:29-apache   "/entrypoint.sh apac…"   app       About an hour ago   Up 11 minutes   0.0.0.0:8080->80/tcp
+docker-db-1      mariadb:11.8.5        "docker-entrypoint.s…"   db        About an hour ago   Up 29 minutes   3306/tcp
+docker-proxy-1   nginx:1.26.2-alpine   "/docker-entrypoint.…"   proxy     About an hour ago   Up 29 minutes   0.0.0.0:443->443/tcp, [::]:443->443/tcp
