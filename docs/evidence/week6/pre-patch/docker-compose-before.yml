@@ -1,6 +1,6 @@
 services:
   db:
-    image: mariadb:11.8.5  # Updated 2025-11-25: Patched version (was mariadb:11)
+    image: mariadb:11
     restart: always
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     environment:
@@ -12,7 +12,7 @@ services:
       - db:/var/lib/mysql
 
   app:
-    image: nextcloud:29-apache  # Updated 2025-11-25: Use floating tag to match data version 29.0.16
+    image: nextcloud:29-apache
     restart: always
     ports:
       - "0.0.0.0:8080:80"
@@ -30,7 +30,7 @@ services:
       - nc:/var/www/html
 
   proxy:
-    image: nginx:1.26.2-alpine  # Updated 2025-11-25: Patched version (was nginx:alpine)
+    image: nginx:alpine
     restart: always
     depends_on:
       - app

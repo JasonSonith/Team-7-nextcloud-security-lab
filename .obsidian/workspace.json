@@ -1,0 +1,206 @@
+{
+  "main": {
+    "id": "96305130965b774a",
+    "type": "split",
+    "children": [
+      {
+        "id": "d3aebb6c09fd46dc",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b742180587de8390",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "docs/evidence/week6/remediation-plan.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "remediation-plan"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "a3bd62b3832b9638",
+    "type": "split",
+    "children": [
+      {
+        "id": "c12de374b5ff0394",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e321fcb04b89b986",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "5ff5988a2a9763bb",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "3ed514dfc89c4acb",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "5098a285c9373f44",
+    "type": "split",
+    "children": [
+      {
+        "id": "fb5eb6af5d4074f0",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "db38ce575ca76cff",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "docs/evidence/week6/remediation-plan.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for remediation-plan"
+            }
+          },
+          {
+            "id": "2a714359c771af19",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "docs/evidence/week6/remediation-plan.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from remediation-plan"
+            }
+          },
+          {
+            "id": "05f216045bf76a62",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "2cd7f91cb69f29a7",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "f62b638f138e0b3e",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "docs/evidence/week6/remediation-plan.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of remediation-plan"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "b742180587de8390",
+  "lastOpenFiles": [
+    "docs/evidence/week6/functionality-test-results.md",
+    "docs/evidence/week6/functionality-test-results.md.tmp.7559.1764101559746",
+    "docs/evidence/week6/post-patch-image-versions.txt",
+    "docs/evidence/week6/post-patch-container-status.txt",
+    "docs/evidence/week6/rebuild-notes.md",
+    "docs/evidence/week6/rebuild-notes.md.tmp.7559.1764101448832",
+    "infra/docker/docker-compose.yml.tmp.7559.1764101366685",
+    "docs/evidence/week6/docker-compose-changes.md",
+    "docs/evidence/week6/docker-compose-changes.md.tmp.7559.1764100766301",
+    "docs/evidence/week6/docker-compose-patched.yml",
+    "infra/docker/docker-compose.yml.tmp.7559.1764100726995",
+    "infra/docker/docker-compose.yml.tmp.7559.1764100726818",
+    "infra/docker/docker-compose.yml.tmp.7559.1764100726668",
+    "CLAUDE.md",
+    "README.md",
+    "docs/findings/week-0-findings.md",
+    "test.svg"
+  ]
+}

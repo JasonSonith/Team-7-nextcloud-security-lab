@@ -1,0 +1,4 @@
+NAMES            IMAGE                 STATUS
+docker-proxy-1   nginx:1.26.2-alpine   Up About a minute
+docker-app-1     nextcloud:29-apache   Up About a minute
+docker-db-1      mariadb:11.8.5        Up About a minute

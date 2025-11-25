@@ -12,7 +12,7 @@ services:
       - db:/var/lib/mysql
 
   app:
-    image: nextcloud:29-apache  # Updated 2025-11-25: Use floating tag to match data version 29.0.16
+    image: nextcloud:29.0.9-apache  # Updated 2025-11-25: Fixes Priority 1 CVEs (was nextcloud:29-apache)
     restart: always
     ports:
       - "0.0.0.0:8080:80"
