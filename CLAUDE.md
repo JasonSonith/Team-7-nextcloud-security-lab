@@ -404,3 +404,4 @@ All evidence files must be reproducible by teammates.
 - I did the zap baseline scan, nextcloud app audit, and zap baseline scan. Next is week 4.
 - I completed week 3, now week 4 is next
 - update week4 with this todo list and remember it
+- i did all the trivy scans
