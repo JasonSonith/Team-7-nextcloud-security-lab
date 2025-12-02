@@ -31,7 +31,7 @@ services:
           memory: 256M
 
   app:
-    image: nextcloud:29-apache  # Updated 2025-11-25: Use floating tag to match data version 29.0.16
+    image: nextcloud:30-apache  # Updated 2025-12-01: Upgraded to NC30 (749 CVEs vs 2034 in NC29, 0 CRITICAL)
     restart: always
     ports:
       - "0.0.0.0:8080:80"
@@ -70,7 +70,7 @@ services:
           memory: 512M
 
   proxy:
-    image: nginx:mainline-alpine  # Updated 2025-11-25: Best available (6 CVEs, 0 CRITICAL/HIGH) - Alpine 3.22.2
+    image: nginx:alpine  # Updated 2025-12-01: (10 CVEs, 0 CRITICAL, 2 HIGH libpng - awaiting upstream fix)
     restart: always
     depends_on:
       - app
