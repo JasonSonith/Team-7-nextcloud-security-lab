@@ -79,25 +79,25 @@ Created comprehensive remediation plan targeting 5 critical CVEs identified in W
 
 | Container | Before (Week 5) | After (Week 6) | Change |
 |-----------|----------------|----------------|--------|
-| **Nextcloud** | 2027 total | *See note* | - |
-| - Critical | 21 | *Pending full rescan* | - |
-| - High | 335 | *Pending full rescan* | - |
-| - Medium | 1042 | *Pending full rescan* | - |
-| - Low | 625 | *Pending full rescan* | - |
-| **MariaDB** | 27 total | 27 total | No change |
+| **Nextcloud** | 2027 total | 2034 total | +7 (+0.3%) |
+| - Critical | 21 | 21 | = |
+| - High | 335 | 331 | -4 |
+| - Medium | 1042 | 1054 | +12 |
+| - Low | 625 | 627 | +2 |
+| **MariaDB** | 27 total | 27 total | = |
 | - Critical | 0 | 0 | = |
-| - High | 4 (gosu) | 4 (gosu) | = |
-| - Medium | 12 | 6 | -6 |
+| - High | 4 (gosu) | 3 (gosu) | -1 |
+| - Medium | 6 | 13 | +7 |
 | - Low | 11 | 11 | = |
-| **Nginx** | 0 | 6 total | +6* |
+| **Nginx** | 0 | 10 total | +10* |
 | - Critical | 0 | 0 | = |
-| - High | 0 | 0 | = |
-| - Medium | 0 | 3 | +3* |
+| - High | 0 | 2 (libpng) | +2* |
+| - Medium | 0 | 5 | +5* |
 | - Low | 0 | 3 | +3* |
 
-*\*Note: Nginx changed from `nginx:alpine` (stable) to `nginx:mainline-alpine` (Alpine 3.22.2), which introduced BusyBox CVEs not present in the original scan. All are local-only exploits.*
+*\*Note: Nginx changed from `nginx:alpine` (stable) to `nginx:mainline-alpine` (Alpine 3.22.2), which introduced BusyBox and libpng CVEs not present in the original scan. New libpng HIGH CVEs (CVE-2025-64720, CVE-2025-65018) are buffer overflow vulnerabilities with fixes available.*
 
-**Nextcloud Scan Note:** Due to version compatibility constraints (existing data at v29.0.16.1), we use the `nextcloud:29-apache` floating tag. Priority 1 CVE remediation was verified via PHP version confirmation (8.2.29 includes CVE-2024-2756 fix) and Debian base package updates.
+**Key Finding:** The same `nextcloud:29-apache` image was used before and after (due to data version constraints), so CVE counts are nearly identical. The slight increase (+7) is due to newly discovered CVEs in the Trivy database between scan dates (Nov 20 → Dec 1).
 
 ---
 
@@ -109,8 +109,8 @@ Created comprehensive remediation plan targeting 5 critical CVEs identified in W
 
 **Total: 27 vulnerabilities** (Ubuntu base: 17, gosu binary: 10)
 - CRITICAL: 0
-- HIGH: 4 (all in gosu stdlib)
-- MEDIUM: 6
+- HIGH: 3 (gosu stdlib)
+- MEDIUM: 13 (6 Ubuntu + 7 gosu)
 - LOW: 11
 
 **Ubuntu Base CVEs (17):**
@@ -135,9 +135,9 @@ Created comprehensive remediation plan targeting 5 critical CVEs identified in W
 | stdlib | CVE-2025-58183 | HIGH | Unbounded allocation in archive/tar |
 | stdlib | CVE-2025-58186 | HIGH | HTTP header number limit issue |
 | stdlib | CVE-2025-58187 | HIGH | Name constraint checking algorithm |
-| stdlib | CVE-2025-58188 | HIGH | DSA public key validation DoS |
 | stdlib | CVE-2025-47912 | MEDIUM | IPv6 hostname validation |
 | stdlib | CVE-2025-58185 | MEDIUM | DER payload memory exhaustion |
+| stdlib | CVE-2025-58188 | MEDIUM | DSA public key validation DoS |
 | stdlib | CVE-2025-58189 | MEDIUM | TLS ALPN negotiation error |
 | stdlib | CVE-2025-61723 | MEDIUM | PEM parsing quadratic complexity |
 | stdlib | CVE-2025-61724 | MEDIUM | ReadResponse CPU consumption |
@@ -153,14 +153,18 @@ Created comprehensive remediation plan targeting 5 critical CVEs identified in W
 
 **Image:** `nginx:mainline-alpine` (alpine 3.22.2)
 
-**Total: 6 vulnerabilities**
+**Total: 10 vulnerabilities**
 - CRITICAL: 0
-- HIGH: 0
-- MEDIUM: 3
+- HIGH: 2 (libpng buffer overflows)
+- MEDIUM: 5
 - LOW: 3
 
 | Library | CVE | Severity | Description |
 |---------|-----|----------|-------------|
+| libpng | CVE-2025-64720 | HIGH | Buffer overflow |
+| libpng | CVE-2025-65018 | HIGH | Heap buffer overflow |
+| libpng | CVE-2025-64505 | MEDIUM | Read application crash |
+| libpng | CVE-2025-64506 | MEDIUM | Heap buffer over-read |
 | busybox | CVE-2024-58251 | MEDIUM | netstat local DoS |
 | busybox | CVE-2025-46394 | LOW | tar filename traversal |
 | busybox-binsh | CVE-2024-58251 | MEDIUM | netstat local DoS |
@@ -168,7 +172,7 @@ Created comprehensive remediation plan targeting 5 critical CVEs identified in W
 | ssl_client | CVE-2024-58251 | MEDIUM | netstat local DoS |
 | ssl_client | CVE-2025-46394 | LOW | tar filename traversal |
 
-**Analysis:** All vulnerabilities are in BusyBox components and require local access to exploit. Container hardening (read-only filesystem, capability restrictions) mitigates these risks.
+**Analysis:** New libpng CVEs (HIGH severity) affect image processing. BusyBox vulnerabilities require local access. Container hardening (read-only filesystem, capability restrictions) mitigates risks. libpng fix available in Alpine 1.6.51-r0.
 
 **Evidence:** `docs/evidence/week6/post-patch-scans/nginx-after.txt`
 
@@ -178,10 +182,24 @@ Created comprehensive remediation plan targeting 5 critical CVEs identified in W
 
 **Image:** `nextcloud:29-apache` (Debian 12.11)
 
+**Total: 2034 vulnerabilities** (Debian base + 1 composer package)
+- CRITICAL: 21
+- HIGH: 331
+- MEDIUM: 1054
+- LOW: 627
+
 **Confirmed Versions:**
 - PHP: 8.2.29 (includes CVE-2024-2756 fix)
 - Nextcloud: 29.0.16.1
 - Apache: 2.4.62
+
+**Notable New Apache CVEs (fixable):**
+| CVE | Severity | Description | Fixed In |
+|-----|----------|-------------|----------|
+| CVE-2024-47252 | HIGH | mod_ssl escaping issue | 2.4.65-1~deb12u1 |
+| CVE-2025-23048 | HIGH | TLS access control bypass | 2.4.65-1~deb12u1 |
+| CVE-2025-49630 | HIGH | mod_proxy_http2 assertion | 2.4.65-1~deb12u1 |
+| CVE-2025-49812 | HIGH | HTTP session hijack via TLS | 2.4.65-1~deb12u1 |
 
 **Priority 1 CVE Status:**
 - CVE-2024-3094 (xz-utils): Remediated in current Debian base
@@ -190,9 +208,9 @@ Created comprehensive remediation plan targeting 5 critical CVEs identified in W
 - CVE-2023-4911 (glibc): Remediated in glibc 2.39+
 - CVE-2024-2756 (PHP): Remediated in PHP 8.2.29
 
-**Note:** Full Trivy rescan deferred due to large image size (~1GB) and scan duration. PHP version confirmation (8.2.29) validates CVE-2024-2756 fix. The Debian 12.11 base image includes security updates for xz-utils, OpenSSL, zlib, and glibc.
+**Note:** Same image used as Week 5 (data version constraint). CVE count increased slightly (+7) due to newly discovered vulnerabilities in Trivy database. Apache 2.4.65 update available but requires Nextcloud image rebuild.
 
-**Evidence:** `docs/evidence/week6/post-patch-scans/nextcloud-after.txt` (version verification), `docs/evidence/week6/functionality-test-results.md`
+**Evidence:** `docs/evidence/week6/post-patch-scans/nextcloud-after.txt`
 
 ---
 
@@ -339,8 +357,11 @@ All automated tests passed after patching and hardening:
 
 | Risk | Severity | Impact | Mitigation |
 |------|----------|--------|------------|
-| gosu Binary (MariaDB) | HIGH | 4 HIGH CVEs | Limited attack surface (local only) |
-| BusyBox (Nginx) | MEDIUM | 3 MEDIUM CVEs | Local exploitation only, container isolation |
+| Nextcloud 21 CRITICAL CVEs | CRITICAL | Remote exploits possible | Upgrade to Nextcloud 30/31 |
+| Apache 4 HIGH CVEs | HIGH | TLS bypass, session hijack | Update to Apache 2.4.65 |
+| libpng 2 HIGH CVEs (Nginx) | HIGH | Buffer overflow | Update Alpine packages |
+| gosu Binary (MariaDB) | HIGH | 3 HIGH CVEs | Limited attack surface (local only) |
+| BusyBox (Nginx) | MEDIUM | 5 MEDIUM CVEs | Local exploitation only, container isolation |
 | Ubuntu Base (MariaDB) | LOW | 11 LOW CVEs | No fixes available upstream |
 | Nextcloud 29 EOL | MEDIUM | No security updates | Upgrade to v30/31 for production |
 
@@ -503,16 +524,23 @@ None of the remaining CVEs pose critical or easily exploitable risks to the Next
 - CVE-2025-58183 (stdlib) - HIGH
 - CVE-2025-58186 (stdlib) - HIGH
 - CVE-2025-58187 (stdlib) - HIGH
-- CVE-2025-58188 (stdlib) - HIGH
 - CVE-2025-47912 (stdlib) - MEDIUM
 - CVE-2025-58185 (stdlib) - MEDIUM
+- CVE-2025-58188 (stdlib) - MEDIUM
 - CVE-2025-58189 (stdlib) - MEDIUM
 - CVE-2025-61723 (stdlib) - MEDIUM
 - CVE-2025-61724 (stdlib) - MEDIUM
 - CVE-2025-61725 (stdlib) - MEDIUM
 
-### Nginx mainline-alpine Complete CVE List (6 total)
+### Nginx mainline-alpine Complete CVE List (10 total)
 
+**libpng (4 CVEs):**
+- CVE-2025-64720 (libpng) - HIGH - Buffer overflow
+- CVE-2025-65018 (libpng) - HIGH - Heap buffer overflow
+- CVE-2025-64505 (libpng) - MEDIUM - Application crash
+- CVE-2025-64506 (libpng) - MEDIUM - Heap buffer over-read
+
+**BusyBox (6 CVEs across 3 packages):**
 - CVE-2024-58251 (busybox) - MEDIUM
 - CVE-2025-46394 (busybox) - LOW
 - CVE-2024-58251 (busybox-binsh) - MEDIUM
