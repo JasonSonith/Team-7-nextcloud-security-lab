@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/evidence/week6/trivy-before-after-comparison.md",
+                "file": "docs/presentation/methodology-script.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "trivy-before-after-comparison"
+              "title": "methodology-script"
             }
           }
         ]
@@ -185,8 +185,8 @@
   },
   "active": "2437b1b1479eda30",
   "lastOpenFiles": [
-    "docs/findings/week-6-findings.md",
     "docs/evidence/week6/trivy-before-after-comparison.md",
+    "docs/findings/week-6-findings.md",
     "docs/evidence/week6/trivy-before-after-comparison.md.tmp.1508.1764654110765",
     "docs/week-notes/week-6-todo.md",
     "docs/findings/week-5-findings.md",
